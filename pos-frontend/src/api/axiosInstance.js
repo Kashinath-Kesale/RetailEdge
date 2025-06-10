@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL, // ✅ Uses env variable
+  baseURL: `${process.env.REACT_APP_API_URL}/api/auth`,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
