@@ -32,10 +32,10 @@ const Signup = () => {
 
     try {
       // Log the request details
-      console.log('Making signup request to:', '/api/auth/signup');
+      console.log('Making signup request to:', '/auth/signup');
       console.log('Request data:', { ...formData, confirmPassword: undefined });
 
-      const response = await axiosInstance.post("/api/auth/signup", {
+      const response = await axiosInstance.post("/auth/signup", {
         name: formData.name,
         email: formData.email,
         password: formData.password,
@@ -44,9 +44,9 @@ const Signup = () => {
 
       console.log('Signup response:', response.data);
 
-      if (response.data.msg) {
+      if (response.data.msg || response.data.message) {
         // Show success message
-        alert(response.data.msg);
+        alert(response.data.msg || response.data.message);
         // Redirect to login page
         navigate("/login");
       } else {
@@ -56,6 +56,7 @@ const Signup = () => {
       console.error('Signup error:', err);
       setError(
         err.response?.data?.msg || 
+        err.response?.data?.message || 
         err.message || 
         "An error occurred during signup"
       );
