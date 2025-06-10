@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import axiosInstance from '../api/axiosInstance';
+import { toast } from 'react-toastify';
 
 const Sales = () => {
   const [customerEmail, setCustomerEmail] = useState("");
@@ -54,7 +54,7 @@ const Sales = () => {
         customerEmail: customerEmail || undefined
       };
 
-      const response = await axios.post('/api/sales', saleData);
+      const response = await axiosInstance.post('/sales', saleData);
       
       if (response.data.sale) {
         setShowReceipt(true);
@@ -67,7 +67,7 @@ const Sales = () => {
       }
     } catch (error) {
       console.error('Sale error:', error);
-      toast.error(error.response?.data?.message || "Error processing sale");
+      toast.error(error.response?.data?.msg || "Error processing sale");
     }
   };
 
@@ -97,10 +97,13 @@ const Sales = () => {
         <input
           type="email"
           value={customerEmail}
-          onChange={(e) => setCustomerEmail(e.target.value)}
+          onChange={handleEmailChange}
           placeholder="Enter customer email"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        {emailError && (
+          <p className="mt-1 text-sm text-red-600">{emailError}</p>
+        )}
       </div>
 
       {/* ... rest of the JSX ... */}

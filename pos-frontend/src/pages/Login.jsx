@@ -27,7 +27,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post("/auth/login", formData);
+      const response = await axiosInstance.post("/login", formData);
       
       if (response.data.token && response.data.user) {
         // Store user data and token
@@ -53,7 +53,7 @@ const Login = () => {
         }
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Login failed. Please check your credentials.";
+      const errorMessage = error.response?.data?.msg || "Login failed. Please check your credentials.";
       toast.error(errorMessage);
     } finally {
       setLoading(false);

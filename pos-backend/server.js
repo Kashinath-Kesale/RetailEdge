@@ -15,10 +15,12 @@ const app = express();
 connectDB();
 
 // CORS Configuration
-const allowedOrigins = [
-  'https://retailedge-app.vercel.app',
-  'http://localhost:3000'
-];
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['https://retailedge-app.vercel.app', 'http://localhost:3000'];
+
+console.log('Allowed Origins:', allowedOrigins);
+console.log('Environment:', process.env.NODE_ENV);
 
 app.use(cors({
   origin: function(origin, callback) {
@@ -26,9 +28,11 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.indexOf(origin) === -1) {
+      console.log('CORS blocked request from:', origin);
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
     }
+    console.log('CORS allowed request from:', origin);
     return callback(null, true);
   },
   credentials: true,
@@ -49,7 +53,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static PDF files (receipts)
-app.use('/receipts', express.static(path.join(__dirname, 'receipts')));
+app.use('/receipts', express.static(path.join(__dirname, 'server/receipts')));
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -61,12 +65,27 @@ app.use("/api/payments", paymentRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Server is running" });
+  res.status(200).json({ 
+    status: "ok", 
+    message: "Server is running",
+    environment: process.env.NODE_ENV,
+    frontendUrl: process.env.FRONTEND_URL,
+    allowedOrigins: allowedOrigins
+  });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Error:', {
+    message: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method,
+    body: req.body,
+    query: req.query,
+    headers: req.headers
+  });
+
   res.status(500).json({
     msg: "Something went wrong!",
     error: process.env.NODE_ENV === "development" ? err.message : undefined
@@ -81,7 +100,8 @@ app.use((req, res, next) => {
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log(`✅ Environment: ${process.env.NODE_ENV}`);
-  console.log(`✅ Frontend URL: ${process.env.FRONTEND_URL}`);
+  console.log(`Server is running on port ${PORT}`);
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('Frontend URL:', process.env.FRONTEND_URL);
+  console.log('Allowed Origins:', allowedOrigins);
 });
