@@ -9,8 +9,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'https://retailedge-backend.onrender.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        changeOrigin: true
       }
     }
   }

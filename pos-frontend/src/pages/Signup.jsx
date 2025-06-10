@@ -75,7 +75,7 @@ const Signup = () => {
         }
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Registration failed. Please try again.";
+      const errorMessage = error.response?.data?.msg || "Registration failed. Please try again.";
       toast.error(errorMessage);
     } finally {
       setLoading(false);
