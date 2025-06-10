@@ -14,7 +14,12 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  withCredentials: true
+  withCredentials: true,
+  // Add timeout and other configurations
+  timeout: 10000,
+  validateStatus: function (status) {
+    return status >= 200 && status < 500; // Accept all status codes less than 500
+  }
 });
 
 // Request interceptor
@@ -30,6 +35,7 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request error:', error);
     return Promise.reject(error);
   }
 );
@@ -45,7 +51,8 @@ axiosInstance.interceptors.response.use(
         url: error.config?.url,
         baseURL: error.config?.baseURL,
         fullURL: `${error.config?.baseURL}${error.config?.url}`,
-        data: error.response.data
+        data: error.response.data,
+        headers: error.response.headers
       });
 
       // Handle specific error cases
@@ -72,7 +79,7 @@ axiosInstance.interceptors.response.use(
       }
     } else if (error.request) {
       // Handle network errors
-      console.error('Network error - no response received');
+      console.error('Network error - no response received:', error.request);
     } else {
       // Handle other errors
       console.error('Error:', error.message);
