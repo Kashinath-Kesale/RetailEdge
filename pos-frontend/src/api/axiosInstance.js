@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api", // Change this if your backend URL is different
+  baseURL: process.env.REACT_APP_API_URL || "https://retailedge-backend.onrender.com/api",
 });
 
 // Add token to Authorization header if present in localStorage
