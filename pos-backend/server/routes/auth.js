@@ -59,7 +59,7 @@ router.post("/signup", async (req, res) => {
     console.log("User saved successfully:", user.email);
 
     try {
-      const verifyURL = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+      const verifyURL = `${process.env.FRONTEND_URL.replace(/\/$/, '')}/verify-email?token=${verificationToken}`;
       await sendEmail({
         to: user.email,
         subject: "Verify your RetailEdge email",
