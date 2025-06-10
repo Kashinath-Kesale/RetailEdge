@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for consistent spacing and typography */
+
+body {
+  @apply bg-gray-100 text-gray-800 font-sans;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-semibold text-gray-900;
+}
+
+button {
+  @apply focus:outline-none;
+}
+
+input, select, textarea {
+  @apply border rounded-lg px-3 py-2 shadow-sm focus:ring focus:border-blue-300;
+}
+
+table {
+  @apply w-full border-collapse;
+}
+
+th, td {
+  @apply text-left p-4;
+}
+
+th {
+  @apply bg-gray-100 font-medium;
+}
+
+tr:nth-child(even) {
+  @apply bg-gray-50;
+}
+
+a {
+  @apply text-blue-600 hover:underline;
+}

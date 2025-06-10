@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Brand Colors */
+:root {
+  --retailedge-primary: #2563eb;    /* Blue-600 */
+  --retailedge-secondary: #7c3aed;  /* Purple-600 */
+  --retailedge-accent: #0ea5e9;     /* Sky-500 */
+}
+
+/* Brand Text Styles */
+.brand-text {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  background: linear-gradient(to right, var(--retailedge-primary), var(--retailedge-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.5px;
+}
+
+.brand-text-light {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  color: var(--retailedge-primary);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@layer base {
+  body {
+    font-family: 'Poppins', sans-serif;
+  }
+}
+
+/* Base Styling */
+body {
+  @apply bg-gray-50 text-gray-800 antialiased;
+}
+
+code {
+  @apply font-mono text-sm bg-gray-200 px-1 rounded;
+}
+
+/* Toast container styles */
+.Toastify__toast {
+  @apply bg-white text-gray-800;
+}
+
+.Toastify__toast-body {
+  @apply text-gray-800;
+}
+
+.Toastify__progress-bar {
+  @apply bg-gray-200;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
