@@ -43,22 +43,42 @@ const Signup = () => {
       return;
     }
 
+    // Validate password length
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      setLoading(false);
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await axiosInstance.post("/signup", {
+      console.log("Sending signup request with data:", {
         name: formData.name,
         email: formData.email,
-        password: formData.password,
         role: formData.role,
+        // Don't log password
       });
 
+      const response = await axiosInstance.post("/api/auth/signup", {
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        role: formData.role.trim().toLowerCase(),
+      });
+
+      console.log("Signup response:", response.data);
+
       if (response.data.token && response.data.user) {
-        // Store user data and token
         login(response.data.token, response.data.user);
-        
-        // Show success message
         toast.success(`Welcome to RetailEdge, ${response.data.user.name}!`);
         
-        // Redirect based on role
         const role = response.data.user.role;
         switch (role) {
           case 'admin':
@@ -75,7 +95,11 @@ const Signup = () => {
         }
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.msg || "Registration failed. Please try again.";
+      console.error("Signup error:", error.response?.data || error.message);
+      const errorMessage = error.response?.data?.msg || 
+                          error.response?.data?.message || 
+                          error.response?.data?.error ||
+                          "Registration failed. Please try again.";
       toast.error(errorMessage);
     } finally {
       setLoading(false);
