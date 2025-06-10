@@ -9,7 +9,6 @@ import "react-toastify/dist/ReactToastify.css";
 const Signup = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -17,7 +16,6 @@ const Signup = () => {
     confirmPassword: "",
     role: "cashier", // Default role
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,10 +27,10 @@ const Signup = () => {
   ];
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value,
-    }));
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -46,25 +44,30 @@ const Signup = () => {
     }
 
     try {
-      const { data } = await axiosInstance.post("/signup", {
+      const response = await axiosInstance.post("/signup", {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role,
       });
 
-      if (data.token && data.user) {
-        login(data.token, data.user);
-        toast.success(`Welcome to RetailEdge, ${data.user.name}!`);
-
-        switch (data.user.role) {
-          case "admin":
+      if (response.data.token && response.data.user) {
+        // Store user data and token
+        login(response.data.token, response.data.user);
+        
+        // Show success message
+        toast.success(`Welcome to RetailEdge, ${response.data.user.name}!`);
+        
+        // Redirect based on role
+        const role = response.data.user.role;
+        switch (role) {
+          case 'admin':
             navigate("/dashboard");
             break;
-          case "cashier":
+          case 'cashier':
             navigate("/sales");
             break;
-          case "viewer":
+          case 'viewer':
             navigate("/products");
             break;
           default:
@@ -86,13 +89,20 @@ const Signup = () => {
           <div className="flex justify-center">
             <FiShoppingBag className="text-[var(--retailedge-primary)] text-4xl" />
           </div>
-          <h2 className="mt-6 text-center brand-text text-3xl">RetailEdge</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">Create your account</p>
+          <h2 className="mt-6 text-center brand-text text-3xl">
+            RetailEdge
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Create your account
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div className="space-y-4">
+          <div className="rounded-md shadow-sm space-y-4">
             <div>
+              <label htmlFor="name" className="sr-only">
+                Full Name
+              </label>
               <input
                 id="name"
                 name="name"
@@ -100,19 +110,23 @@ const Signup = () => {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="input-style"
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
                 placeholder="Full Name"
               />
             </div>
             <div>
+              <label htmlFor="email" className="sr-only">
+                Email address
+              </label>
               <input
                 id="email"
                 name="email"
                 type="email"
+                autoComplete="email"
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="input-style"
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
                 placeholder="Email address"
               />
             </div>
@@ -126,7 +140,7 @@ const Signup = () => {
                 required
                 value={formData.role}
                 onChange={handleChange}
-                className="input-style"
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
               >
                 {roles.map((role) => (
                   <option key={role.value} value={role.value}>
@@ -135,43 +149,51 @@ const Signup = () => {
                 ))}
               </select>
               <p className="mt-1 text-sm text-gray-500">
-                {roles.find((r) => r.value === formData.role)?.description}
+                {roles.find(r => r.value === formData.role)?.description}
               </p>
             </div>
             <div className="relative">
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
               <input
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="input-style"
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
                 placeholder="Password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="eye-toggle"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
               >
                 {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </button>
             </div>
             <div className="relative">
+              <label htmlFor="confirmPassword" className="sr-only">
+                Confirm Password
+              </label>
               <input
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="input-style"
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
                 placeholder="Confirm Password"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="eye-toggle"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
               >
                 {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </button>
@@ -204,12 +226,5 @@ const Signup = () => {
     </div>
   );
 };
-
-// Reusable Tailwind classes
-const inputStyle =
-  "appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm";
-
-const eyeToggleStyle =
-  "absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500";
 
 export default Signup;
