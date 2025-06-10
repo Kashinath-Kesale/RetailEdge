@@ -2,7 +2,9 @@ import axios from 'axios';
 
 // Get the API URL from environment variables
 const apiUrl = process.env.REACT_APP_API_URL || 'https://retailedge-backend.onrender.com';
-const baseURL = `${apiUrl}/api`;
+
+// Ensure the API URL doesn't end with a slash
+const baseURL = `${apiUrl.replace(/\/$/, '')}/api`;
 
 // Log configuration for debugging
 console.log('Environment:', process.env.NODE_ENV);
@@ -14,7 +16,7 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  withCredentials: false, // Changed to false for email verification
+  withCredentials: false,
   timeout: 15000,
   validateStatus: function (status) {
     return status >= 200 && status < 500;
@@ -24,8 +26,18 @@ const axiosInstance = axios.create({
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
+    // Ensure URL doesn't have double slashes
+    if (config.url) {
+      config.url = config.url.replace(/\/+/g, '/');
+    }
+    
     // Log request details
     console.log('Making request to:', `${config.baseURL}${config.url}`);
+    console.log('Request config:', {
+      method: config.method,
+      headers: config.headers,
+      data: config.data
+    });
     
     const token = localStorage.getItem('token');
     if (token) {

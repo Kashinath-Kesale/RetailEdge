@@ -9,6 +9,9 @@ const sendEmail = require("../utils/sendEmail");
 
 const router = express.Router();
 
+// Helper function to clean URLs
+const cleanUrl = (url) => url.replace(/\/+/g, '/').replace(/\/$/, '');
+
 // ==================== Signup ====================
 router.post("/signup", async (req, res) => {
   try {
@@ -59,7 +62,13 @@ router.post("/signup", async (req, res) => {
     console.log("User saved successfully:", user.email);
 
     try {
-      const verifyURL = `${process.env.FRONTEND_URL.replace(/\/$/, '')}/verify-email?token=${verificationToken}`;
+      // Clean the frontend URL and construct verification URL
+      const frontendUrl = cleanUrl(process.env.FRONTEND_URL);
+      const verifyURL = `${frontendUrl}/verify-email?token=${verificationToken}`;
+      
+      console.log("Sending verification email to:", user.email);
+      console.log("Verification URL:", verifyURL);
+
       await sendEmail({
         to: user.email,
         subject: "Verify your RetailEdge email",
@@ -105,6 +114,7 @@ router.post("/signup", async (req, res) => {
 router.get("/verify-email", async (req, res) => {
   try {
     const { token } = req.query;
+    console.log("Verification request received for token:", token);
 
     if (!token) {
       return res.status(400).json({ msg: "Verification token is required" });
@@ -126,6 +136,8 @@ router.get("/verify-email", async (req, res) => {
     user.emailVerificationToken = undefined;
     user.emailVerificationExpires = undefined;
     await user.save();
+
+    console.log("Email verified successfully for user:", user.email);
 
     res.status(200).json({ 
       msg: "Email verified successfully",

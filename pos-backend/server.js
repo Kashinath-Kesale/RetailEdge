@@ -5,13 +5,16 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const connectDB = require("./server/config/db");
+const authRoutes = require("./server/routes/auth");
+const dashboardRoutes = require("./server/routes/dashboard");
+const paymentRoutes = require("./server/routes/payment");
 
 const app = express();
 
 // Connect to MongoDB
 connectDB();
 
-// CORS configuration
+// CORS Configuration
 const allowedOrigins = [
   'https://retailedge-app.vercel.app',
   'http://localhost:3000'
@@ -43,25 +46,30 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Serve static PDF files (receipts)
 app.use('/receipts', express.static(path.join(__dirname, 'receipts')));
 
 // Routes
-app.use("/api/auth", require("./server/routes/auth"));
+app.use("/api/auth", authRoutes);
 app.use("/api/products", require("./server/routes/productRoutes"));
 app.use("/api/sales", require("./server/routes/sales"));
 app.use("/api/receipts", require("./server/routes/receiptRoutes"));
-app.use("/api/dashboard", require("./server/routes/dashboard"));
-app.use("/api/payments", require("./server/routes/payment"));
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/payments", paymentRoutes);
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Server is running" });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
-    msg: 'Server error',
-    error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  res.status(500).json({
+    msg: "Something went wrong!",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined
   });
 });
 
