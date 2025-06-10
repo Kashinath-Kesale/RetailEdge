@@ -26,6 +26,7 @@ export default function Signup() {
     setLoading(true);
 
     try {
+      console.log('Making signup request to:', `${axios.defaults.baseURL}/auth/signup`);
       const response = await axios.post('/auth/signup', formData);
       console.log('Signup successful:', response.data);
       

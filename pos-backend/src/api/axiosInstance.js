@@ -1,8 +1,13 @@
 import axios from 'axios';
 
-const baseURL = `${process.env.REACT_APP_API_URL}/api`;
+// Ensure the API URL is properly formatted
+const apiUrl = process.env.REACT_APP_API_URL?.replace(/\/$/, ''); // Remove trailing slash if present
+const baseURL = `${apiUrl}/api`;
 
-console.log('API Base URL:', baseURL); // For debugging
+// Log the configuration for debugging
+console.log('Environment:', process.env.NODE_ENV);
+console.log('API URL:', process.env.REACT_APP_API_URL);
+console.log('Base URL:', baseURL);
 
 const axiosInstance = axios.create({
   baseURL,
@@ -15,6 +20,9 @@ const axiosInstance = axios.create({
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
+    // Log the full URL for debugging
+    console.log('Making request to:', `${config.baseURL}${config.url}`);
+    
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -31,6 +39,15 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
+      // Log the error details
+      console.error('API Error:', {
+        status: error.response.status,
+        url: error.config?.url,
+        baseURL: error.config?.baseURL,
+        fullURL: `${error.config?.baseURL}${error.config?.url}`,
+        data: error.response.data
+      });
+
       // Handle specific error cases
       switch (error.response.status) {
         case 401:
