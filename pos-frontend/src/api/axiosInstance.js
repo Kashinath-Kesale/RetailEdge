@@ -3,6 +3,10 @@ import { toast } from "react-toastify";
 
 const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_API_URL, // ✅ Uses env variable
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
 
 // Attach token to request if available
