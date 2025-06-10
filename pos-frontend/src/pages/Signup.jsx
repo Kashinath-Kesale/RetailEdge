@@ -44,7 +44,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await axiosInstance.post("/auth/signup", {
+      const response = await axiosInstance.post("/signup", {
         name: formData.name,
         email: formData.email,
         password: formData.password,
