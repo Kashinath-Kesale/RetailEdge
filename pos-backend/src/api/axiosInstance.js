@@ -14,8 +14,8 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  withCredentials: true,
-  timeout: 15000, // Increased timeout for production
+  withCredentials: false, // Changed to false for email verification
+  timeout: 15000,
   validateStatus: function (status) {
     return status >= 200 && status < 500;
   }
@@ -41,7 +41,15 @@ axiosInstance.interceptors.request.use(
 
 // Response interceptor
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Log successful responses for debugging
+    console.log('Response received:', {
+      status: response.status,
+      url: response.config?.url,
+      data: response.data
+    });
+    return response;
+  },
   (error) => {
     if (error.response) {
       // Log detailed error information

@@ -9,6 +9,7 @@ const Signup = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "cashier" // Default role
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,15 +39,18 @@ const Signup = () => {
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        role: formData.role
       });
 
       console.log('Signup response:', response.data);
 
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        navigate("/dashboard");
+      if (response.data.msg) {
+        // Show success message
+        alert(response.data.msg);
+        // Redirect to login page
+        navigate("/login");
       } else {
-        setError("Signup successful but no token received");
+        setError("Signup successful but no confirmation message received");
       }
     } catch (err) {
       console.error('Signup error:', err);
@@ -58,6 +62,13 @@ const Signup = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Role descriptions for tooltips
+  const roleDescriptions = {
+    admin: "Full access to all features including user management and system settings",
+    cashier: "Can process sales, manage inventory, and view reports",
+    viewer: "Can only view sales data and reports"
   };
 
   return (
@@ -156,6 +167,32 @@ const Signup = () => {
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Role
+              </label>
+              <div className="mt-1">
+                <select
+                  id="role"
+                  name="role"
+                  required
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="cashier">Cashier</option>
+                  <option value="viewer">Viewer</option>
+                </select>
+                <p className="mt-2 text-sm text-gray-500">
+                  {roleDescriptions[formData.role]}
+                </p>
               </div>
             </div>
 
