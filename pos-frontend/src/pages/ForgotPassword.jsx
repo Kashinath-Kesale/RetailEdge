@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 import { toast } from "react-toastify";
 
 export default function ForgotPassword() {
@@ -14,7 +14,7 @@ export default function ForgotPassword() {
 
     try {
       console.log("Sending forgot password request for email:", email);
-      const response = await axios.post("http://localhost:5000/api/auth/forgot-password", {
+      const response = await axiosInstance.post("/forgot-password", {
         email,
       });
 

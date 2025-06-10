@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 import { toast } from "react-toastify";
 
 export default function ResetPassword() {
@@ -29,7 +29,7 @@ export default function ResetPassword() {
 
     try {
       console.log("Submitting reset password request with token:", token);
-      const response = await axios.post("http://localhost:5000/api/auth/reset-password", {
+      const response = await axiosInstance.post("/reset-password", {
         token,
         newPassword,
       });
