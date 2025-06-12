@@ -2,13 +2,11 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiShoppingBag, FiEye, FiEyeOff } from "react-icons/fi";
 import axiosInstance from "../api/axiosInstance";
-import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -33,37 +31,49 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!");
-      setLoading(false);
-      return;
-    }
-
-    // Validate password length
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters long");
-      setLoading(false);
-      return;
+  const validateForm = () => {
+    // Validate name
+    if (formData.name.trim().length < 2) {
+      toast.error("Name must be at least 2 characters long");
+      return false;
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       toast.error("Please enter a valid email address");
-      setLoading(false);
+      return false;
+    }
+
+    // Validate password length
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return false;
+    }
+
+    // Validate password match
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match!");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
       return;
     }
+
+    setLoading(true);
 
     try {
       console.log("Sending signup request with data:", {
         name: formData.name,
         email: formData.email,
         role: formData.role,
-        // Don't log password
       });
 
       const response = await axiosInstance.post("/api/auth/signup", {
@@ -75,24 +85,9 @@ const Signup = () => {
 
       console.log("Signup response:", response.data);
 
-      if (response.data.token && response.data.user) {
-        login(response.data.token, response.data.user);
-        toast.success(`Welcome to RetailEdge, ${response.data.user.name}!`);
-        
-        const role = response.data.user.role;
-        switch (role) {
-          case 'admin':
-            navigate("/dashboard");
-            break;
-          case 'cashier':
-            navigate("/sales");
-            break;
-          case 'viewer':
-            navigate("/products");
-            break;
-          default:
-            navigate("/dashboard");
-        }
+      if (response.data.message === 'User registered successfully. Please check your email to verify.') {
+        toast.success('Registration successful! Please check your email to verify your account.');
+        navigate('/login');
       }
     } catch (error) {
       console.error("Signup error:", error.response?.data || error.message);
@@ -230,7 +225,11 @@ const Signup = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-[var(--retailedge-primary)] to-[var(--retailedge-secondary)] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--retailedge-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Creating account..." : "Sign up"}
+              {loading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                "Sign up"
+              )}
             </button>
           </div>
 

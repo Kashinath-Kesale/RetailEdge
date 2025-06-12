@@ -1,48 +1,63 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
+// Create axios instance with base configuration
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
-  withCredentials: true,
+  baseURL: "https://retailedge-backend.onrender.com",
   headers: {
-    'Content-Type': 'application/json',
-  }
+    "Content-Type": "application/json",
+  },
 });
 
-// Attach token to request if available
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Request interceptor
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // Get token from localStorage
+    const token = localStorage.getItem("token");
 
-// Global error handling
+    // Add token to headers if it exists
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Log the request details
+    console.log("Making request to:", config.url);
+    console.log("Method:", config.method);
+    console.log("Headers:", config.headers);
+    console.log("Data:", config.data);
+
+    return config;
+  },
+  (error) => {
+    console.error("Request error:", error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
-    if (response.config.url.includes("/verify-email")) return response;
     return response;
   },
   (error) => {
-    if (error.config?.url?.includes("/verify-email")) {
-      return Promise.reject(error);
+    console.error("Response error:", error);
+    
+    // Handle 401 Unauthorized and 403 Forbidden errors
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      // Clear any existing tokens
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      
+      // Only redirect if not on login page
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = "/login";
+        toast.error("Session expired. Please login again.");
+      }
     }
 
-    if (error.response) {
-      if (error.response.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        toast.error("Session expired. Please log in again.");
-        window.location.href = "/";
-      } else if (error.response.status === 403) {
-        toast.error("You don't have permission to perform this action.");
-      } else {
-        toast.error(error.response.data?.msg || "An error occurred");
-      }
-    } else {
-      toast.error("Network error. Please check your connection.");
-    }
+    // Handle other errors
+    const errorMessage = error.response?.data?.msg || "An error occurred";
+    toast.error(errorMessage);
 
     return Promise.reject(error);
   }

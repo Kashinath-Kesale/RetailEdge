@@ -3,13 +3,15 @@ const nodemailer = require("nodemailer");
 const sendEmail = async ({ to, subject, html }) => {
   try {
     // Validate environment variables
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      throw new Error("SMTP credentials not configured. Please check your .env file.");
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.SMTP_HOST || !process.env.SMTP_PORT) {
+      throw new Error("SMTP configuration incomplete. Please check your .env file.");
     }
 
     console.log("Creating email transporter...");
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
@@ -21,7 +23,7 @@ const sendEmail = async ({ to, subject, html }) => {
     console.log("SMTP connection verified successfully");
 
     const mailOptions = {
-      from: `"RetailEdge" <${process.env.SMTP_USER}>`,
+      from: `"RetailEdge" <${process.env.EMAIL_FROM || process.env.SMTP_USER}>`,
       to,
       subject,
       html,

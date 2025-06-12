@@ -36,18 +36,52 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// Middleware
+// CORS configuration
+const allowedOrigins = [
+  'https://retailedge-app.vercel.app',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: [
-    'https://retailedge-app.vercel.app',
-    'http://localhost:3000',
-    process.env.FRONTEND_URL
-  ].filter(Boolean),
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'X-Requested-With',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers'
+  ],
+  exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
+
+// Middleware
 app.use(express.json());
+
+// Debug middleware to log requests
+app.use((req, res, next) => {
+  console.log('Incoming request:', {
+    method: req.method,
+    path: req.path,
+    origin: req.headers.origin,
+    headers: req.headers
+  });
+  next();
+});
 
 // Serve static PDF files (receipts)
 app.use('/receipts', express.static(path.join(__dirname, 'receipts')));
@@ -64,7 +98,12 @@ app.use(errorHandler);
 
 // Catch-all for undefined routes
 app.use((req, res) => {
-  res.status(404).json({ message: 'API endpoint not found' });
+  console.log('404 Not Found:', req.method, req.path);
+  res.status(404).json({ 
+    message: 'API endpoint not found',
+    path: req.path,
+    method: req.method
+  });
 });
 
 // Start the server

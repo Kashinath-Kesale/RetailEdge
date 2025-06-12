@@ -70,6 +70,7 @@ app.get("/health", (req, res) => {
     message: "Server is running",
     environment: process.env.NODE_ENV,
     frontendUrl: process.env.FRONTEND_URL,
+    backendUrl: process.env.BACKEND_URL,
     allowedOrigins: allowedOrigins
   });
 });
@@ -103,5 +104,6 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log('Environment:', process.env.NODE_ENV);
   console.log('Frontend URL:', process.env.FRONTEND_URL);
+  console.log('Backend URL:', process.env.BACKEND_URL);
   console.log('Allowed Origins:', allowedOrigins);
 });

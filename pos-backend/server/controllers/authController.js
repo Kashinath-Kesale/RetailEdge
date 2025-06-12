@@ -60,7 +60,8 @@ exports.signup = async (req, res) => {
     try {
       // Clean the frontend URL and construct verification URL
       const frontendUrl = cleanUrl(process.env.FRONTEND_URL);
-      const verifyURL = `${frontendUrl}/verify-email?token=${verificationToken}`;
+      const backendUrl = cleanUrl(process.env.BACKEND_URL || 'https://retailedge-backend.onrender.com');
+      const verifyURL = `${backendUrl}/api/auth/verify-email?token=${verificationToken}`;
       
       console.log("Sending verification email to:", newUser.email);
       console.log("Verification URL:", verifyURL);
@@ -109,9 +110,15 @@ exports.signup = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.query;
-    console.log("Verification request received for token:", token);
+    console.log("Verification request received:", {
+      token,
+      headers: req.headers,
+      query: req.query,
+      path: req.path
+    });
 
     if (!token) {
+      console.log("No token provided in request");
       return res.status(400).json({ message: "Verification token is required" });
     }
 
@@ -121,6 +128,7 @@ exports.verifyEmail = async (req, res) => {
     });
 
     if (!user) {
+      console.log("Invalid or expired token:", token);
       return res.status(400).json({ 
         message: "Invalid or expired token",
         details: "Please request a new verification email"
@@ -132,17 +140,14 @@ exports.verifyEmail = async (req, res) => {
     user.emailVerificationExpires = undefined;
     await user.save();
 
-    console.log("Email verified successfully for user:", user.email);
-
-    res.status(200).json({ 
-      message: "Email verified successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
+    console.log("Email verified successfully for user:", {
+      userId: user._id,
+      email: user.email
     });
+
+    // Redirect to frontend login page with success message
+    const frontendUrl = cleanUrl(process.env.FRONTEND_URL);
+    res.redirect(`${frontendUrl}/login?verified=true`);
   } catch (error) {
     console.error("Email verification error:", error);
     res.status(500).json({ 

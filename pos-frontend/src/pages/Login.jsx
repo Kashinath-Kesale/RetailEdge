@@ -1,12 +1,14 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FiShoppingBag, FiEye, FiEyeOff } from "react-icons/fi";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
@@ -14,6 +16,37 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Clear any existing tokens when the login page loads
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // Check if there's a verification token in the URL
+    const token = searchParams.get("token");
+    if (token) {
+      verifyEmail(token);
+    }
+
+    // Check if there's a verification success message
+    const verified = searchParams.get("verified");
+    if (verified === "true") {
+      toast.success("Email verified successfully! You can now log in.");
+    }
+  }, [searchParams]);
+
+  const verifyEmail = async (token) => {
+    try {
+      console.log("Verifying email with token:", token);
+      const response = await axiosInstance.get(`/api/auth/verify-email?token=${token}`);
+      console.log("Verification response:", response.data);
+      toast.success(response.data.msg || "Email verified successfully!");
+    } catch (error) {
+      console.error("Verification error:", error);
+      const errorMessage = error.response?.data?.msg || "Email verification failed";
+      toast.error(errorMessage);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -27,7 +60,18 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post("/login", formData);
+      // Clear any existing tokens before login
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      const loginData = {
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password
+      };
+
+      console.log("Attempting login with:", { email: loginData.email });
+      const response = await axiosInstance.post("/api/auth/login", loginData);
+      console.log("Login response:", response.data);
       
       if (response.data.token && response.data.user) {
         // Store user data and token
@@ -53,6 +97,7 @@ const Login = () => {
         }
       }
     } catch (error) {
+      console.error("Login error:", error);
       const errorMessage = error.response?.data?.msg || "Login failed. Please check your credentials.";
       toast.error(errorMessage);
     } finally {
@@ -71,7 +116,7 @@ const Login = () => {
             RetailEdge
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Log in to your account
+            Sign in to your account
           </p>
         </div>
 
@@ -118,7 +163,7 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-end">
             <div className="text-sm">
               <Link
                 to="/forgot-password"
@@ -135,7 +180,11 @@ const Login = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-[var(--retailedge-primary)] to-[var(--retailedge-secondary)] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--retailedge-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Logging in..." : "Log in"}
+              {loading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                "Sign in"
+              )}
             </button>
           </div>
 
