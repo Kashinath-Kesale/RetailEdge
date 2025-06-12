@@ -58,9 +58,11 @@ exports.signup = async (req, res) => {
     console.log("User saved successfully:", newUser.email);
 
     try {
-      // Clean the frontend URL and construct verification URL
+      // Clean and format the frontend URL
       const frontendUrl = cleanUrl(process.env.FRONTEND_URL);
-      const verifyURL = `${frontendUrl}/login?token=${verificationToken}`;
+      // Ensure the URL has the proper protocol
+      const formattedFrontendUrl = frontendUrl.startsWith('http') ? frontendUrl : `https://${frontendUrl}`;
+      const verifyURL = `${formattedFrontendUrl}/login?token=${verificationToken}`;
       
       console.log("Sending verification email to:", newUser.email);
       console.log("Verification URL:", verifyURL);
