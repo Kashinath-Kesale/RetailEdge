@@ -1,0 +1,46 @@
+# Node modules (massive size, rebuildable)
+node_modules/
+
+# Environment variables (sensitive info)
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Optional: Dependency lock files (depends on team preference)
+# Uncomment if you're using only npm and want to ignore yarn.lock
+# yarn.lock
+# Or ignore package-lock.json if using Yarn
+# package-lock.json
+
+# Optional: Build or temp folders (if applicable)
+dist/
+build/
+temp/
+.tmp/
+
+# PM2 logs (if using pm2)
+pids
+*.pid
+*.seed
+
+# Coverage reports (if testing with jest or similar)
+coverage/
+
+# MongoDB local dump/backups (if any)
+dump/

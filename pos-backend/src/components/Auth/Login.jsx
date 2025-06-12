@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { FiShoppingBag, FiEye, FiEyeOff } from "react-icons/fi";
-import axiosInstance from "../api/axiosInstance";
-import { useAuth } from "../context/AuthContext";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { FiShoppingBag, FiEye, FiEyeOff } from 'react-icons/fi';
+import axiosInstance from '../../api/axiosInstance';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,15 +20,15 @@ const Login = () => {
 
   useEffect(() => {
     // Clear any existing tokens when the login page loads
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
 
     // Check if there's a verification token in the URL
-    const token = searchParams.get("token");
-    const verified = searchParams.get("verified");
+    const token = searchParams.get('token');
+    const verified = searchParams.get('verified');
 
-    if (verified === "true") {
-      toast.success("Email verified successfully! You can now log in.");
+    if (verified === 'true') {
+      toast.success('Email verified successfully! You can now log in.');
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (token) {
@@ -39,21 +39,21 @@ const Login = () => {
   const verifyEmail = async (token) => {
     try {
       setVerifying(true);
-      console.log("Verifying email with token:", token);
+      console.log('Verifying email with token:', token);
       const response = await axiosInstance.get(`/api/auth/verify-email?token=${token}`);
-      console.log("Verification response:", response.data);
+      console.log('Verification response:', response.data);
       
       // Clean up URL after successful verification
       window.history.replaceState({}, document.title, window.location.pathname);
       
-      toast.success("Email verified successfully! You can now log in.");
+      toast.success('Email verified successfully! You can now log in.');
     } catch (error) {
-      console.error("Verification error:", error);
-      const errorMessage = error.response?.data?.message || "Email verification failed";
+      console.error('Verification error:', error);
+      const errorMessage = error.response?.data?.message || 'Email verification failed';
       
       // If the error is that the email is already verified, show a success message
-      if (error.response?.data?.message?.includes("already verified")) {
-        toast.success("Email already verified! You can now log in.");
+      if (error.response?.data?.message?.includes('already verified')) {
+        toast.success('Email already verified! You can now log in.');
       } else {
         toast.error(errorMessage);
       }
@@ -78,17 +78,17 @@ const Login = () => {
 
     try {
       // Clear any existing tokens before login
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
 
       const loginData = {
         email: formData.email.trim().toLowerCase(),
         password: formData.password
       };
 
-      console.log("Attempting login with:", { email: loginData.email });
-      const response = await axiosInstance.post("/api/auth/login", loginData);
-      console.log("Login response:", response.data);
+      console.log('Attempting login with:', { email: loginData.email });
+      const response = await axiosInstance.post('/api/auth/login', loginData);
+      console.log('Login response:', response.data);
       
       if (response.data.token && response.data.user) {
         // Store user data and token
@@ -101,21 +101,21 @@ const Login = () => {
         const role = response.data.user.role;
         switch (role) {
           case 'admin':
-            navigate("/dashboard");
+            navigate('/dashboard');
             break;
           case 'cashier':
-            navigate("/sales");
+            navigate('/sales');
             break;
           case 'viewer':
-            navigate("/products");
+            navigate('/products');
             break;
           default:
-            navigate("/dashboard");
+            navigate('/dashboard');
         }
       }
     } catch (error) {
-      console.error("Login error:", error);
-      const errorMessage = error.response?.data?.message || "Login failed. Please check your credentials.";
+      console.error('Login error:', error);
+      const errorMessage = error.response?.data?.message || 'Login failed. Please check your credentials.';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -162,7 +162,7 @@ const Login = () => {
               <input
                 id="password"
                 name="password"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 required
                 value={formData.password}
@@ -200,14 +200,14 @@ const Login = () => {
               {loading || verifying ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
               ) : (
-                verifying ? "Verifying..." : "Sign in"
+                verifying ? 'Verifying...' : 'Sign in'
               )}
             </button>
           </div>
 
           <div className="text-sm text-center">
             <p className="text-gray-600">
-              Don't have an account?{" "}
+              Don't have an account?{' '}
               <Link
                 to="/signup"
                 className="font-medium text-[var(--retailedge-primary)] hover:text-[var(--retailedge-secondary)] transition-colors duration-300"
@@ -222,4 +222,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login; 

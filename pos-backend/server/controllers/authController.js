@@ -60,8 +60,7 @@ exports.signup = async (req, res) => {
     try {
       // Clean the frontend URL and construct verification URL
       const frontendUrl = cleanUrl(process.env.FRONTEND_URL);
-      const backendUrl = cleanUrl(process.env.BACKEND_URL || 'https://retailedge-backend.onrender.com');
-      const verifyURL = `${backendUrl}/api/auth/verify-email?token=${verificationToken}`;
+      const verifyURL = `${frontendUrl}/login?token=${verificationToken}`;
       
       console.log("Sending verification email to:", newUser.email);
       console.log("Verification URL:", verifyURL);
@@ -128,7 +127,12 @@ exports.verifyEmail = async (req, res) => {
     });
 
     if (!user) {
-      console.log("Invalid or expired token:", token);
+      // Check if user is already verified
+      const existingUser = await User.findOne({ emailVerificationToken: token });
+      if (existingUser && existingUser.isVerified) {
+        const frontendUrl = cleanUrl(process.env.FRONTEND_URL);
+        return res.redirect(`${frontendUrl}/login?verified=true`);
+      }
       return res.status(400).json({ 
         message: "Invalid or expired token",
         details: "Please request a new verification email"
