@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "../api/axiosInstance";
 import { FiDollarSign, FiShoppingBag, FiUsers, FiTrendingUp, FiTrendingDown } from "react-icons/fi";
 import moment from "moment";
+import { toast } from "react-toastify";
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState({
@@ -20,15 +21,15 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         // Get total sales and revenue
-        const salesResponse = await axios.get("/sales");
-        const sales = salesResponse.data;
+        const salesResponse = await axios.get("/api/sales");
+        const sales = Array.isArray(salesResponse.data) ? salesResponse.data : [];
         
         // Get total products
-        const productsResponse = await axios.get("/products");
+        const productsResponse = await axios.get("/api/products");
         const products = productsResponse.data.products || [];
 
         // Calculate total revenue and sales count
-        const totalRevenue = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+        const totalRevenue = sales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
         const totalSales = sales.length;
         const totalProducts = products.length;
 
@@ -41,13 +42,13 @@ export default function Dashboard() {
         const currentMonthSales = sales.filter(sale => 
           moment(sale.createdAt).isSameOrAfter(currentMonthStart)
         );
-        const currentMonthRevenue = currentMonthSales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+        const currentMonthRevenue = currentMonthSales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
 
         // Get previous month's revenue
         const previousMonthSales = sales.filter(sale => 
           moment(sale.createdAt).isBetween(previousMonthStart, previousMonthEnd, 'day', '[]')
         );
-        const previousMonthRevenue = previousMonthSales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+        const previousMonthRevenue = previousMonthSales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
 
         // Calculate growth percentage with better handling of edge cases
         let revenueGrowth = 0;
@@ -81,7 +82,7 @@ export default function Dashboard() {
           );
           return {
             month: monthStart.format('MMM YYYY'),
-            revenue: monthSales.reduce((sum, sale) => sum + sale.totalAmount, 0)
+            revenue: monthSales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0)
           };
         }).reverse();
 
@@ -98,6 +99,14 @@ export default function Dashboard() {
         });
       } catch (error) {
         console.error("Dashboard fetch error:", error);
+        toast.error("Failed to fetch dashboard data. Please try again later.", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     };
 

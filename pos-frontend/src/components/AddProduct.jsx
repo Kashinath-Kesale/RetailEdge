@@ -18,7 +18,7 @@ export default function AddProduct({ onSuccess, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.post("/products", {
+      await axiosInstance.post("/api/products", {
         ...form,
         price: parseFloat(form.price),
         quantity: parseInt(form.quantity),

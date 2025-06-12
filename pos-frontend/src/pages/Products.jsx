@@ -19,7 +19,7 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axiosInstance.get("/products");
+      const response = await axiosInstance.get("/api/products");
       const productsData = Array.isArray(response.data)
         ? response.data
         : response.data.products || [];
@@ -34,7 +34,7 @@ const Products = () => {
   const handleDelete = async (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await axiosInstance.delete(`/products/${productId}`);
+        await axiosInstance.delete(`/api/products/${productId}`);
         toast.success("Product deleted successfully");
         fetchProducts();
       } catch (error) {

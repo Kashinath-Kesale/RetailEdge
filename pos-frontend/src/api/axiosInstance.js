@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 
 // Create axios instance with base configuration
 const axiosInstance = axios.create({
-  baseURL: "https://retailedge-backend.onrender.com",
+  baseURL: "https://retailedge-backend.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -21,7 +21,7 @@ axiosInstance.interceptors.request.use(
     }
 
     // Log the request details
-    console.log("Making request to:", config.url);
+    console.log("Full request URL:", config.baseURL + config.url);
     console.log("Method:", config.method);
     console.log("Headers:", config.headers);
     console.log("Data:", config.data);
@@ -53,6 +53,12 @@ axiosInstance.interceptors.response.use(
         window.location.href = "/login";
         toast.error("Session expired. Please login again.");
       }
+    }
+
+    // Handle 404 errors
+    if (error.response?.status === 404) {
+      console.error("Resource not found:", error.config.url);
+      toast.error("Resource not found. Please try again later.");
     }
 
     // Handle other errors
