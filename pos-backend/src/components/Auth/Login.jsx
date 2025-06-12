@@ -104,7 +104,7 @@ const Login = () => {
             navigate('/dashboard');
             break;
           case 'cashier':
-            navigate('/sales');
+            navigate('/pos');
             break;
           case 'viewer':
             navigate('/products');
