@@ -26,21 +26,21 @@ const VerifyEmail = () => {
         const response = await axiosInstance.get(`/auth/verify-email?token=${token}`);
         console.log("Verification response:", response.data);
 
-        if (response.data.success) {
+        if (response.data.success || response.data.verified) {
           setStatus('success');
           toast.success("Email verified successfully! You can now login.");
           setTimeout(() => navigate("/login"), 2000);
         } else {
           setStatus('error');
-          toast.error("Verification failed. Please try again.");
+          toast.error(response.data.message || "Verification failed. Please try again.");
           setTimeout(() => navigate("/login"), 2000);
         }
       } catch (error) {
         console.error("Verification error:", error);
         setStatus('error');
-        const errorMessage = error.response?.data?.message || "Failed to verify email";
+        const errorMessage = error.response?.data?.message || error.response?.data?.msg || "Failed to verify email";
         
-        if (errorMessage.includes('already verified')) {
+        if (errorMessage.toLowerCase().includes('already verified')) {
           toast.success("Email already verified! You can now log in.");
           setStatus('success');
         } else {

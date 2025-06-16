@@ -24,27 +24,35 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (!formData.email || !formData.password) {
+      toast.error("All fields are required");
+      setLoading(false);
+      return;
+    }
+
     try {
-      if (!formData.email || !formData.password) {
-        toast.error("All fields are required");
-        setLoading(false);
-        return;
+      console.log("Sending login request with data:", { email: formData.email });
+      const response = await axiosInstance.post("/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+      console.log("Login response:", response.data);
+
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+
+        if (!response.data.user.isVerified) {
+          toast.info("Please verify your email before proceeding");
+          navigate("/verify-email");
+          return;
+        }
+
+        toast.success("Login successful!");
+        navigate("/dashboard");
       }
-
-      const response = await axiosInstance.post("/api/auth/login", formData);
-      const { token, user } = response.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      if (!user.isVerified) {
-        toast.info("Please verify your email before proceeding");
-        navigate("/verify-email");
-        return;
-      }
-
-      toast.success("Login successful!");
-      navigate("/dashboard");
     } catch (error) {
+      console.error("Login error:", error);
       const errorMessage = error.response?.data?.message || error.response?.data?.msg || "Login failed";
       toast.error(errorMessage);
     } finally {

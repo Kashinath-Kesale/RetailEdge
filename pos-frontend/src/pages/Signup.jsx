@@ -57,7 +57,9 @@ const Signup = () => {
       }
     } catch (error) {
       console.error("Signup error:", error);
-      setError(error.response?.data?.message || "Failed to create account");
+      const errorMessage = error.response?.data?.message || error.response?.data?.msg || "Failed to create account";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
