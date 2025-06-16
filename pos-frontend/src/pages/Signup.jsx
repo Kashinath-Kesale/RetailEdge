@@ -14,6 +14,7 @@ const Signup = () => {
     role: "viewer",
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,35 +27,37 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     try {
-      const { name, email, password, confirmPassword } = formData;
-      if (!name || !email || !password || !confirmPassword) {
-        toast.error("All fields are required");
+      // Validate passwords match
+      if (formData.password !== formData.confirmPassword) {
+        setError("Passwords do not match");
         setLoading(false);
         return;
       }
 
-      if (password !== confirmPassword) {
-        toast.error("Passwords do not match");
+      // Validate password strength
+      if (formData.password.length < 8) {
+        setError("Password must be at least 8 characters long");
         setLoading(false);
         return;
       }
 
-      if (password.length < 6) {
-        toast.error("Password must be at least 6 characters long");
-        setLoading(false);
-        return;
-      }
+      // Remove confirmPassword before sending
+      const { confirmPassword, ...signupData } = formData;
 
-      const { confirmPassword: _, ...signupData } = formData;
-      await axiosInstance.post("/api/auth/signup", signupData);
-      toast.success("Signup successful! Please verify your email.");
-      navigate("/login");
+      console.log("Sending signup request with data:", signupData);
+      const response = await axiosInstance.post("/auth/signup", signupData);
+      console.log("Signup response:", response.data);
+
+      if (response.data.success) {
+        toast.success("Account created successfully! Please check your email for verification.");
+        navigate("/login");
+      }
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || error.response?.data?.msg || "Signup failed";
-      toast.error(errorMessage);
+      console.error("Signup error:", error);
+      setError(error.response?.data?.message || "Failed to create account");
     } finally {
       setLoading(false);
     }

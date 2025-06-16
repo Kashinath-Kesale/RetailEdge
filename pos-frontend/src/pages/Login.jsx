@@ -9,6 +9,7 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Check for verification token
   useEffect(() => {
@@ -26,6 +27,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     if (!formData.email || !formData.password) {
       toast.error("All fields are required");
@@ -34,23 +36,22 @@ const Login = () => {
     }
 
     try {
-      const res = await axiosInstance.post("/api/auth/login", formData);
-      const { token, user } = res.data;
+      console.log("Sending login request with data:", { email: formData.email });
+      const response = await axiosInstance.post("/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+      console.log("Login response:", response.data);
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      if (!user.isVerified) {
-        toast.info("Please verify your email before proceeding");
-        navigate("/verify-email");
-        return;
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        toast.success("Login successful!");
+        navigate("/dashboard");
       }
-
-      toast.success("Login successful!");
-      navigate("/dashboard");
     } catch (error) {
-      const errMsg = error.response?.data?.message || "Login failed";
-      toast.error(errMsg);
+      console.error("Login error:", error);
+      setError(error.response?.data?.message || "Failed to login");
     } finally {
       setLoading(false);
     }

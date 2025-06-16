@@ -5,9 +5,9 @@ import { toast } from "react-toastify";
 const baseURL = process.env.REACT_APP_API_URL;
 console.log("Initializing axios with baseURL:", baseURL);
 
-// Ensure baseURL doesn't end with a slash and includes /api
+// Ensure baseURL doesn't end with a slash and doesn't have double /api
 const cleanBaseURL = baseURL?.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
-const finalBaseURL = cleanBaseURL?.includes('/api') ? cleanBaseURL : `${cleanBaseURL}/api`;
+const finalBaseURL = cleanBaseURL?.replace(/\/api\/api/, '/api');
 console.log("Final baseURL:", finalBaseURL);
 
 const axiosInstance = axios.create({
@@ -26,6 +26,11 @@ axiosInstance.interceptors.request.use(
     // Add token to headers if it exists
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Clean up URL to prevent double /api
+    if (config.url) {
+      config.url = config.url.replace(/^\/api\/api/, '/api');
     }
 
     // Log request details
