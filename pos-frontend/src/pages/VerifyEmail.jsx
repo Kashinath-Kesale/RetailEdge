@@ -11,6 +11,33 @@ const VerifyEmail = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [verified, setVerified] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  const handleResendVerification = async () => {
+    try {
+      setResending(true);
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      
+      if (!user.email) {
+        toast.error("Please login again to request a new verification email");
+        navigate("/login");
+        return;
+      }
+
+      const response = await axiosInstance.post("/auth/resend-verification", {
+        email: user.email
+      });
+
+      if (response.data.success) {
+        toast.success("Verification email sent! Please check your inbox.");
+      }
+    } catch (err) {
+      console.error("Resend verification error:", err);
+      toast.error(err.response?.data?.msg || "Failed to resend verification email");
+    } finally {
+      setResending(false);
+    }
+  };
 
   useEffect(() => {
     const verifyEmail = async () => {
@@ -33,7 +60,8 @@ const VerifyEmail = () => {
         const response = await axiosInstance.get(`/auth/verify-email?token=${token}`);
         console.log("Verification response:", response.data);
 
-        if (response.data.success) {
+        // Check if the response indicates success
+        if (response.data.success || response.data.verified) {
           setVerified(true);
           setStatus('success');
           toast.success("Email verified successfully!");
@@ -43,20 +71,36 @@ const VerifyEmail = () => {
           user.isVerified = true;
           localStorage.setItem("user", JSON.stringify(user));
           
+          // Redirect to dashboard after successful verification
           setTimeout(() => {
             navigate("/dashboard", { replace: true });
           }, 2000);
         } else {
-          setStatus('error');
-          setError(response.data.message || "Verification failed. Please try again.");
-          toast.error(response.data.message || "Verification failed. Please try again.");
-          setTimeout(() => navigate("/login"), 2000);
+          // Handle case where verification was already done
+          if (response.data.message?.toLowerCase().includes('already verified')) {
+            setVerified(true);
+            setStatus('success');
+            toast.success("Email already verified! Redirecting to dashboard...");
+            
+            // Update user verification status in localStorage
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
+            user.isVerified = true;
+            localStorage.setItem("user", JSON.stringify(user));
+            
+            setTimeout(() => {
+              navigate("/dashboard", { replace: true });
+            }, 2000);
+          } else {
+            setStatus('error');
+            setError(response.data.message || "Verification failed. Please try again.");
+            toast.error(response.data.message || "Verification failed. Please try again.");
+          }
         }
       } catch (err) {
         console.error("Verification error:", err);
-        setError(err.response?.data?.msg || "Verification failed. Please try again.");
-        toast.error(err.response?.data?.msg || "Verification failed. Please try again.");
-        setTimeout(() => navigate("/login"), 2000);
+        const errorMessage = err.response?.data?.msg || err.response?.data?.message || "Verification failed. Please try again.";
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }

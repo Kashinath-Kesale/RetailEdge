@@ -15,6 +15,9 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  validateStatus: function (status) {
+    return status >= 200 && status < 500; // Accept all status codes less than 500
+  },
 });
 
 // Request interceptor
@@ -54,6 +57,12 @@ axiosInstance.interceptors.request.use(
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
+    // Log successful response
+    console.log("✅ Response:", {
+      status: response.status,
+      data: response.data,
+      headers: response.headers
+    });
     return response;
   },
   (error) => {
@@ -92,6 +101,11 @@ axiosInstance.interceptors.response.use(
     // Handle 404 Not Found
     if (status === 404) {
       toast.error("Resource not found. Please try again later.");
+    }
+
+    // Handle 400 Bad Request
+    if (status === 400) {
+      toast.error(message || "Invalid request. Please check your input.");
     }
 
     // Show default error message

@@ -406,4 +406,74 @@ exports.resetPassword = async (req, res) => {
     console.error("Reset password error:", error);
     res.status(500).json({ message: "Error resetting password" });
   }
+};
+
+// Resend Verification Email
+exports.resendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: "Email is already verified" });
+    }
+
+    // Generate new verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationTokenExpires = Date.now() + 3600000; // 1 hour
+
+    // Update user with new token
+    user.emailVerificationToken = verificationToken;
+    user.emailVerificationExpires = verificationTokenExpires;
+    await user.save();
+
+    // Send verification email
+    const frontendUrl = cleanUrl(process.env.FRONTEND_URL);
+    const verifyURL = `${frontendUrl}/verify-email?token=${verificationToken}`;
+    
+    console.log("Resending verification email to:", user.email);
+    console.log("New verification URL:", verifyURL);
+
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+        <h2 style="color: #2563eb; margin-bottom: 20px;">Verify your RetailEdge email</h2>
+        <p style="font-size: 16px; line-height: 1.5; color: #374151;">Hello ${user.name},</p>
+        <p style="font-size: 16px; line-height: 1.5; color: #374151;">Please click the button below to verify your email address:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verifyURL}" 
+             style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: 500;">
+            Verify Email Address
+          </a>
+        </div>
+        <p style="font-size: 14px; color: #6b7280;">Or copy and paste this link in your browser:</p>
+        <p style="font-size: 14px; color: #6b7280; word-break: break-all; background: #f3f4f6; padding: 10px; border-radius: 4px;">${verifyURL}</p>
+        <p style="font-size: 14px; color: #6b7280;">This link will expire in 1 hour.</p>
+      </div>
+    `;
+
+    await sendEmail({
+      to: user.email,
+      subject: "Verify your RetailEdge email",
+      html: emailContent
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Verification email sent successfully"
+    });
+  } catch (error) {
+    console.error("Resend verification error:", error);
+    res.status(500).json({
+      message: "Failed to resend verification email",
+      error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
 }; 
