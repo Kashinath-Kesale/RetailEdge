@@ -1,4 +1,5 @@
 // src/App.jsx
+import React from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
@@ -16,11 +17,22 @@ import Sales from "./pages/Sales";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
 
-function App() {
+const App = () => {
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <Router>
       <AuthProvider>
         <div className="min-h-screen bg-gray-100">
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
@@ -28,23 +40,74 @@ function App() {
             <Route path="/verify-email" element={<VerifyEmail />} />
 
             {/* Protected routes */}
-            <Route element={<Layout />}>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-              <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
-              <Route path="/sales" element={<PrivateRoute><Sales /></PrivateRoute>} />
-              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-              <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
-            </Route>
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/products"
+              element={
+                <PrivateRoute>
+                  <Layout>
+                    <Products />
+                  </Layout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/sales"
+              element={
+                <PrivateRoute>
+                  <Layout>
+                    <Sales />
+                  </Layout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <Layout>
+                    <Profile />
+                  </Layout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/change-password"
+              element={
+                <PrivateRoute>
+                  <Layout>
+                    <ChangePassword />
+                  </Layout>
+                </PrivateRoute>
+              }
+            />
 
             {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
-          <ToastContainer />
         </div>
       </AuthProvider>
     </Router>
   );
-}
+};
 
 export default App;

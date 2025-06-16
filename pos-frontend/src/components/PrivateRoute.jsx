@@ -1,31 +1,29 @@
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, loading, auth } = useAuth();
   const location = useLocation();
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  console.log("PrivateRoute check:", {
+    hasToken: !!token,
+    user: user,
+    path: location.pathname
+  });
 
-  if (!isAuthenticated) {
+  if (!token) {
+    console.log("No token found, redirecting to login");
+    toast.error("Please login to access this page");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Role-based access control
-  const currentPath = location.pathname;
-  const userRole = auth.user?.role;
-
-  // Check if user has access to the current route
-  if (currentPath === '/payments' || currentPath === '/sales') {
-    if (userRole === 'viewer') {
-      return <Navigate to="/dashboard" replace />;
-    }
+  // Check if user is verified
+  if (!user.isVerified) {
+    console.log("User not verified, redirecting to verify-email");
+    toast.info("Please verify your email before proceeding");
+    return <Navigate to="/verify-email" state={{ from: location }} replace />;
   }
 
   return children;

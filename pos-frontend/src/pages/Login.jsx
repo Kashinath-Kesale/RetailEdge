@@ -1,17 +1,27 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosInstance from "../api/axiosInstance";
 import { FiMail, FiLock, FiShoppingBag } from "react-icons/fi";
 
 const Login = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Check for verification token in URL
+    const token = searchParams.get("token");
+    if (token) {
+      console.log("Found verification token in URL, redirecting to verify-email page");
+      navigate(`/verify-email?token=${token}`);
+    }
+  }, [searchParams, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,11 +55,19 @@ const Login = () => {
 
       console.log("Login response:", response.data);
 
-      if (response.data.success) {
+      if (response.data.success || response.data.token) {
+        // Store token and user data
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
+        
+        // Show success message
         toast.success("Login successful!");
-        navigate("/dashboard");
+        
+        // Force a small delay to ensure localStorage is updated
+        setTimeout(() => {
+          console.log("Navigating to dashboard...");
+          navigate("/dashboard", { replace: true });
+        }, 100);
       }
     } catch (err) {
       console.error("Login error:", err);
