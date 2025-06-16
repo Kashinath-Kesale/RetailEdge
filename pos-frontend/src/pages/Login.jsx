@@ -63,6 +63,13 @@ const Login = () => {
         // Show success message
         toast.success("Login successful!");
         
+        // Check if user is verified
+        if (!response.data.user.isVerified) {
+          console.log("User not verified, redirecting to verify-email");
+          navigate("/verify-email", { replace: true });
+          return;
+        }
+
         // Force a small delay to ensure localStorage is updated
         setTimeout(() => {
           console.log("Navigating to dashboard...");

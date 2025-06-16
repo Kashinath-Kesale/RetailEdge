@@ -1,29 +1,60 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const PrivateRoute = ({ children }) => {
   const location = useLocation();
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const [isLoading, setIsLoading] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [redirectPath, setRedirectPath] = useState(null);
 
-  console.log("PrivateRoute check:", {
-    hasToken: !!token,
-    user: user,
-    path: location.pathname
-  });
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  if (!token) {
-    console.log("No token found, redirecting to login");
-    toast.error("Please login to access this page");
-    return <Navigate to="/login" state={{ from: location }} replace />;
+      console.log("PrivateRoute check:", {
+        hasToken: !!token,
+        user: user,
+        path: location.pathname
+      });
+
+      if (!token) {
+        console.log("No token found, redirecting to login");
+        setRedirectPath("/login");
+        setShouldRedirect(true);
+        return;
+      }
+
+      // Check if user is verified
+      if (!user.isVerified) {
+        console.log("User not verified, redirecting to verify-email");
+        setRedirectPath("/verify-email");
+        setShouldRedirect(true);
+        return;
+      }
+
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [location.pathname]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
-  // Check if user is verified
-  if (!user.isVerified) {
-    console.log("User not verified, redirecting to verify-email");
-    toast.info("Please verify your email before proceeding");
-    return <Navigate to="/verify-email" state={{ from: location }} replace />;
+  if (shouldRedirect) {
+    if (redirectPath === "/login") {
+      toast.error("Please login to access this page");
+    } else if (redirectPath === "/verify-email") {
+      toast.info("Please verify your email before proceeding");
+    }
+    return <Navigate to={redirectPath} state={{ from: location }} replace />;
   }
 
   return children;

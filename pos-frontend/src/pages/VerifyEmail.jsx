@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosInstance from "../api/axiosInstance";
@@ -37,8 +37,14 @@ const VerifyEmail = () => {
           setVerified(true);
           setStatus('success');
           toast.success("Email verified successfully!");
+          
+          // Update user verification status in localStorage
+          const user = JSON.parse(localStorage.getItem("user") || "{}");
+          user.isVerified = true;
+          localStorage.setItem("user", JSON.stringify(user));
+          
           setTimeout(() => {
-            navigate("/login");
+            navigate("/dashboard", { replace: true });
           }, 2000);
         } else {
           setStatus('error');
@@ -91,7 +97,7 @@ const VerifyEmail = () => {
                 Email verified successfully!
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                Redirecting to login page...
+                Redirecting to dashboard...
               </p>
             </div>
           )}
