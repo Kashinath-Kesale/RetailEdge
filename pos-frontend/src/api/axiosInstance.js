@@ -5,11 +5,13 @@ import { toast } from "react-toastify";
 const baseURL = process.env.REACT_APP_API_URL;
 console.log("Initializing axios with baseURL:", baseURL);
 
-// Ensure baseURL doesn't end with a slash
+// Ensure baseURL doesn't end with a slash and includes /api
 const cleanBaseURL = baseURL?.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
+const finalBaseURL = cleanBaseURL?.includes('/api') ? cleanBaseURL : `${cleanBaseURL}/api`;
+console.log("Final baseURL:", finalBaseURL);
 
 const axiosInstance = axios.create({
-  baseURL: cleanBaseURL,
+  baseURL: finalBaseURL,
   headers: {
     "Content-Type": "application/json",
   },

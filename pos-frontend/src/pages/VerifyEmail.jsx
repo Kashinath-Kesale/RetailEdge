@@ -23,12 +23,12 @@ const VerifyEmail = () => {
         console.log("Verifying email with token:", token);
         console.log("Base URL:", process.env.REACT_APP_API_URL);
         
-        // Make the request with the correct path
-        const response = await axiosInstance.get(`/api/auth/verify-email?token=${token}`);
+        const response = await axiosInstance.get(`/auth/verify-email?token=${token}`);
+        console.log("Verification response:", response.data);
 
-        if (response.data.verified || response.data.message?.includes('verified')) {
+        if (response.data.success) {
           setStatus('success');
-          toast.success(response.data.message || "Email verified successfully!");
+          toast.success("Email verified successfully! You can now login.");
           setTimeout(() => navigate("/login"), 2000);
         } else {
           setStatus('error');
@@ -36,8 +36,9 @@ const VerifyEmail = () => {
           setTimeout(() => navigate("/login"), 2000);
         }
       } catch (error) {
+        console.error("Verification error:", error);
         setStatus('error');
-        const errorMessage = error.response?.data?.message || error.response?.data?.msg || "Email verification failed";
+        const errorMessage = error.response?.data?.message || "Failed to verify email";
         
         if (errorMessage.includes('already verified')) {
           toast.success("Email already verified! You can now log in.");
