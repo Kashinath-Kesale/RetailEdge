@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiShoppingBag, FiEye, FiEyeOff } from "react-icons/fi";
-import axiosInstance from "../api/axiosInstance";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import axiosInstance from "../api/axiosInstance";
+import { FiUser, FiMail, FiLock, FiShoppingBag, FiChevronDown } from "react-icons/fi";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -12,242 +11,234 @@ const Signup = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "cashier", // Default role
+    role: "viewer",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const roles = [
-    { value: "admin", label: "Admin", description: "Full access to all features" },
-    { value: "cashier", label: "Cashier", description: "Access to sales and payments" },
-    { value: "viewer", label: "Viewer", description: "View-only" },
-  ];
-
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const validateForm = () => {
-    // Validate name
-    if (formData.name.trim().length < 2) {
-      toast.error("Name must be at least 2 characters long");
-      return false;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast.error("Please enter a valid email address");
-      return false;
-    }
-
-    // Validate password length
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters long");
-      return false;
-    }
-
-    // Validate password match
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!");
-      return false;
-    }
-
-    return true;
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
     setLoading(true);
 
     try {
-      console.log("Sending signup request with data:", {
-        name: formData.name,
-        email: formData.email,
-        role: formData.role,
-      });
-
-      const response = await axiosInstance.post("/api/auth/signup", {
-        name: formData.name.trim(),
-        email: formData.email.trim().toLowerCase(),
-        password: formData.password,
-        role: formData.role.trim().toLowerCase(),
-      });
-
-      console.log("Signup response:", response.data);
-
-      if (response.data.message === 'User registered successfully. Please check your email to verify.') {
-        toast.success('Registration successful! Please check your email to verify your account.');
-        navigate('/login');
+      const { name, email, password, confirmPassword } = formData;
+      if (!name || !email || !password || !confirmPassword) {
+        toast.error("All fields are required");
+        setLoading(false);
+        return;
       }
+
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match");
+        setLoading(false);
+        return;
+      }
+
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters long");
+        setLoading(false);
+        return;
+      }
+
+      const { confirmPassword: _, ...signupData } = formData;
+      await axiosInstance.post("/api/auth/signup", signupData);
+      toast.success("Signup successful! Please verify your email.");
+      navigate("/login");
     } catch (error) {
-      console.error("Signup error:", error.response?.data || error.message);
-      const errorMessage = error.response?.data?.msg || 
-                          error.response?.data?.message || 
-                          error.response?.data?.error ||
-                          "Registration failed. Please try again.";
+      const errorMessage =
+        error.response?.data?.message || error.response?.data?.msg || "Signup failed";
       toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  const roleOptions = [
+    { value: "admin", label: "Admin - Full system access" },
+    { value: "cashier", label: "Cashier - Process transactions" },
+    { value: "viewer", label: "Viewer - View reports" },
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="flex justify-center">
-            <FiShoppingBag className="text-[var(--retailedge-primary)] text-4xl" />
-          </div>
-          <h2 className="mt-6 text-center brand-text text-3xl">
-            RetailEdge
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Create your account
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-6">
+          <FiShoppingBag className="h-8 w-8 text-indigo-600 mx-auto" />
+          <h2 className="mt-2 text-xl font-bold text-gray-900">Create your account</h2>
+          <p className="mt-1 text-xs text-gray-500">
+            Join RetailEdge and start managing your business
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm space-y-4">
+        <div className="bg-white py-5 px-4 shadow-md rounded-lg border border-gray-100">
+          <form className="space-y-3" onSubmit={handleSubmit}>
+            {/* Name Field */}
+            <InputField
+              label="Full Name"
+              id="name"
+              name="name"
+              type="text"
+              icon={<FiUser className="h-4 w-4 text-gray-400" />}
+              placeholder="John Doe"
+              value={formData.name}
+              onChange={handleChange}
+            />
+
+            {/* Email Field */}
+            <InputField
+              label="Email address"
+              id="email"
+              name="email"
+              type="email"
+              icon={<FiMail className="h-4 w-4 text-gray-400" />}
+              placeholder="you@example.com"
+              value={formData.email}
+              onChange={handleChange}
+            />
+
+            {/* Password Field */}
+            <InputField
+              label="Password"
+              id="password"
+              name="password"
+              type="password"
+              icon={<FiLock className="h-4 w-4 text-gray-400" />}
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+            />
+
+            {/* Confirm Password Field */}
+            <InputField
+              label="Confirm Password"
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              icon={<FiLock className="h-4 w-4 text-gray-400" />}
+              placeholder="••••••••"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+            />
+
+            {/* Role Selection */}
             <div>
-              <label htmlFor="name" className="sr-only">
-                Full Name
+              <label htmlFor="role" className="block text-xs font-medium text-gray-700 mb-1">
+                Select Your Role
               </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
-                placeholder="Full Name"
-              />
+              <div className="relative rounded-md shadow-sm">
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-8 text-sm border-gray-300 rounded-md transition duration-150 ease-in-out h-9 appearance-none bg-white"
+                >
+                  {roleOptions.map((role) => (
+                    <option key={role.value} value={role.value}>
+                      {role.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                  <FiChevronDown className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
             </div>
+
+            {/* Submit Button */}
             <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
-            </div>
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-                Select Role
-              </label>
-              <select
-                id="role"
-                name="role"
-                required
-                value={formData.role}
-                onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
-              >
-                {roles.map((role) => (
-                  <option key={role.value} value={role.value}>
-                    {role.label}
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-sm text-gray-500">
-                {roles.find(r => r.value === formData.role)?.description}
-              </p>
-            </div>
-            <div className="relative">
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
+                type="submit"
+                disabled={loading}
+                className={`w-full flex justify-center py-1.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
-                {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                {loading ? (
+                  <LoadingSpinner text="Creating account..." />
+                ) : (
+                  "Create account"
+                )}
               </button>
             </div>
+          </form>
+
+          {/* Already have account */}
+          <div className="mt-4">
             <div className="relative">
-              <label htmlFor="confirmPassword" className="sr-only">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                autoComplete="new-password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
-                placeholder="Confirm Password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
-              >
-                {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
-              </button>
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="px-2 bg-white text-gray-500">Already have an account?</span>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-[var(--retailedge-primary)] to-[var(--retailedge-secondary)] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--retailedge-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              ) : (
-                "Sign up"
-              )}
-            </button>
-          </div>
-
-          <div className="text-sm text-center">
-            <p className="text-gray-600">
-              Already have an account?{" "}
+            <div className="mt-3">
               <Link
                 to="/login"
-                className="font-medium text-[var(--retailedge-primary)] hover:text-[var(--retailedge-secondary)] transition-colors duration-300"
+                className="w-full flex justify-center py-1.5 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
               >
-                Log in
+                Sign in to your account
               </Link>
-            </p>
+            </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
 };
+
+// Reusable input field component
+const InputField = ({ label, id, name, type, icon, placeholder, value, onChange }) => (
+  <div>
+    <label htmlFor={id} className="block text-xs font-medium text-gray-700 mb-1">
+      {label}
+    </label>
+    <div className="relative rounded-md shadow-sm">
+      <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+        {icon}
+      </div>
+      <input
+        id={id}
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        required
+        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 text-sm border-gray-300 rounded-md transition duration-150 ease-in-out h-9"
+        placeholder={placeholder}
+      />
+    </div>
+  </div>
+);
+
+// Spinner with optional text
+const LoadingSpinner = ({ text }) => (
+  <div className="flex items-center">
+    <svg
+      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 
+        1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+    {text}
+  </div>
+);
 
 export default Signup;

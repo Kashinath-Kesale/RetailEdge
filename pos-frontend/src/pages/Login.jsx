@@ -1,222 +1,149 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { FiShoppingBag, FiEye, FiEyeOff } from "react-icons/fi";
-import axiosInstance from "../api/axiosInstance";
-import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import axiosInstance from "../api/axiosInstance";
+import { FiMail, FiLock, FiShoppingBag } from "react-icons/fi";
 
 const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login } = useAuth();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [verifying, setVerifying] = useState(false);
 
+  // Check for verification token
   useEffect(() => {
-    // Clear any existing tokens when the login page loads
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    // Check if there's a verification token in the URL
     const token = searchParams.get("token");
-    const verified = searchParams.get("verified");
-
-    if (verified === "true") {
-      toast.success("Email verified successfully! You can now log in.");
-      // Clean up URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (token) {
-      verifyEmail(token);
+    if (token) {
+      navigate(`/verify-email?token=${token}`);
     }
-  }, [searchParams]);
-
-  const verifyEmail = async (token) => {
-    try {
-      setVerifying(true);
-      console.log("Verifying email with token:", token);
-      const response = await axiosInstance.get(`/api/auth/verify-email?token=${token}`);
-      console.log("Verification response:", response.data);
-      
-      // Clean up URL after successful verification
-      window.history.replaceState({}, document.title, window.location.pathname);
-      
-      toast.success("Email verified successfully! You can now log in.");
-    } catch (error) {
-      console.error("Verification error:", error);
-      const errorMessage = error.response?.data?.message || "Email verification failed";
-      
-      // If the error is that the email is already verified, show a success message
-      if (error.response?.data?.message?.includes("already verified")) {
-        toast.success("Email already verified! You can now log in.");
-      } else {
-        toast.error(errorMessage);
-      }
-      
-      // Clean up URL even on error
-      window.history.replaceState({}, document.title, window.location.pathname);
-    } finally {
-      setVerifying(false);
-    }
-  };
+  }, [searchParams, navigate]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
+    if (!formData.email || !formData.password) {
+      toast.error("All fields are required");
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Clear any existing tokens before login
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      const res = await axiosInstance.post("/api/auth/login", formData);
+      const { token, user } = res.data;
 
-      const loginData = {
-        email: formData.email.trim().toLowerCase(),
-        password: formData.password
-      };
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-      console.log("Attempting login with:", { email: loginData.email });
-      const response = await axiosInstance.post("/api/auth/login", loginData);
-      console.log("Login response:", response.data);
-      
-      if (response.data.token && response.data.user) {
-        // Store user data and token
-        login(response.data.token, response.data.user);
-        
-        // Show success message
-        toast.success(`Welcome back, ${response.data.user.name}!`);
-        
-        // Redirect based on role
-        const role = response.data.user.role;
-        switch (role) {
-          case 'admin':
-            navigate("/dashboard");
-            break;
-          case 'cashier':
-            navigate("/sales");
-            break;
-          case 'viewer':
-            navigate("/products");
-            break;
-          default:
-            navigate("/dashboard");
-        }
+      if (!user.isVerified) {
+        toast.info("Please verify your email before proceeding");
+        navigate("/verify-email");
+        return;
       }
+
+      toast.success("Login successful!");
+      navigate("/dashboard");
     } catch (error) {
-      console.error("Login error:", error);
-      const errorMessage = error.response?.data?.message || "Login failed. Please check your credentials.";
-      toast.error(errorMessage);
+      const errMsg = error.response?.data?.message || "Login failed";
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="flex justify-center">
-            <FiShoppingBag className="text-[var(--retailedge-primary)] text-4xl" />
-          </div>
-          <h2 className="mt-6 text-center brand-text text-3xl">
-            RetailEdge
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to your account
-          </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-6">
+          <FiShoppingBag className="h-9 w-9 text-indigo-600 mx-auto" />
+          <h2 className="mt-2 text-2xl font-bold text-gray-900">Welcome Back</h2>
+          <p className="mt-1 text-sm text-gray-500">Sign in to your RetailEdge account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm space-y-4">
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
+              <label htmlFor="email" className="block text-xs font-medium text-gray-700 mb-1">Email address</label>
+              <div className="relative">
+                <FiMail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="pl-9 pr-3 py-2 text-sm w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                  placeholder="you@example.com"
+                />
+              </div>
             </div>
-            <div className="relative">
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--retailedge-primary)] focus:border-[var(--retailedge-primary)] focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
-              >
-                {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
-              </button>
-            </div>
-          </div>
 
-          <div className="flex items-center justify-end">
-            <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="font-medium text-[var(--retailedge-primary)] hover:text-[var(--retailedge-secondary)] transition-colors duration-300"
-              >
-                Forgot your password?
+            <div>
+              <label htmlFor="password" className="block text-xs font-medium text-gray-700 mb-1">Password</label>
+              <div className="relative">
+                <FiLock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="pl-9 pr-3 py-2 text-sm w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <div className="text-right">
+              <Link to="/forgot-password" className="text-xs font-medium text-indigo-600 hover:text-indigo-500">
+                Forgot password?
               </Link>
             </div>
-          </div>
 
-          <div>
             <button
               type="submit"
-              disabled={loading || verifying}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-[var(--retailedge-primary)] to-[var(--retailedge-secondary)] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--retailedge-primary)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
+              className={`w-full py-2 px-4 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 transition ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              {loading || verifying ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.372 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.134 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Signing in...
+                </span>
               ) : (
-                verifying ? "Verifying..." : "Sign in"
+                "Sign in"
               )}
             </button>
-          </div>
+          </form>
 
-          <div className="text-sm text-center">
-            <p className="text-gray-600">
-              Don't have an account?{" "}
-              <Link
-                to="/signup"
-                className="font-medium text-[var(--retailedge-primary)] hover:text-[var(--retailedge-secondary)] transition-colors duration-300"
-              >
-                Sign up
-              </Link>
-            </p>
+          <div className="mt-5 text-center text-sm">
+            <span className="text-gray-500">Don't have an account?</span>{" "}
+            <Link
+              to="/signup"
+              className="text-indigo-600 hover:text-indigo-500 font-medium"
+            >
+              Create one
+            </Link>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

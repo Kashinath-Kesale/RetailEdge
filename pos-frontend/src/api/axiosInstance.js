@@ -2,8 +2,14 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 // Create axios instance with base configuration
+const baseURL = process.env.REACT_APP_API_URL;
+console.log("Initializing axios with baseURL:", baseURL);
+
+// Ensure baseURL doesn't end with a slash
+const cleanBaseURL = baseURL?.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
+
 const axiosInstance = axios.create({
-  baseURL: "https://retailedge-backend.onrender.com/api",
+  baseURL: cleanBaseURL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -20,16 +26,17 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Log the request details
-    console.log("Full request URL:", config.baseURL + config.url);
-    console.log("Method:", config.method);
-    console.log("Headers:", config.headers);
-    console.log("Data:", config.data);
+    // Log request details
+    console.log("📡 Request to:", config.url);
+    console.log("🌐 Full URL:", `${config.baseURL}${config.url}`);
+    console.log("🔀 Method:", config.method);
+    console.log("🧾 Headers:", config.headers);
+    console.log("📦 Data:", config.data);
 
     return config;
   },
   (error) => {
-    console.error("Request error:", error);
+    console.error("❌ Request error:", error);
     return Promise.reject(error);
   }
 );
@@ -40,30 +47,42 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error("Response error:", error);
-    
-    // Handle 401 Unauthorized and 403 Forbidden errors
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      // Clear any existing tokens
+    const status = error.response?.status;
+    const message = error.response?.data?.msg || error.response?.data?.message || "An error occurred";
+
+    console.error("❌ Response error:", error);
+    console.error("🔍 Error details:", {
+      status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL,
+        headers: error.config?.headers,
+      },
+    });
+
+    // Handle 401 Unauthorized and 403 Forbidden
+    if (status === 401 || status === 403) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      
-      // Only redirect if not on login page
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = "/login";
+
+      if (!window.location.pathname.includes("/login")) {
         toast.error("Session expired. Please login again.");
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1000);
       }
     }
 
-    // Handle 404 errors
-    if (error.response?.status === 404) {
-      console.error("Resource not found:", error.config.url);
+    // Handle 404 Not Found
+    if (status === 404) {
       toast.error("Resource not found. Please try again later.");
     }
 
-    // Handle other errors
-    const errorMessage = error.response?.data?.msg || "An error occurred";
-    toast.error(errorMessage);
+    // Show default error message
+    toast.error(message);
 
     return Promise.reject(error);
   }

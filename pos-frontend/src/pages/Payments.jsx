@@ -17,7 +17,7 @@ export default function Payments() {
   const fetchPayments = async () => {
     try {
       // Fetch sales data instead of payments
-      const res = await axiosInstance.get("/sales");
+      const res = await axiosInstance.get("/api/sales");
       // Transform sales data into payment format
       const transformedPayments = res.data.map(sale => ({
         _id: sale._id,

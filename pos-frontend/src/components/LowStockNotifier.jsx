@@ -6,7 +6,7 @@ const LowStockNotifier = () => {
   useEffect(() => {
     const checkLowStock = async () => {
       try {
-        const response = await axiosInstance.get('/products');
+        const response = await axiosInstance.get('/api/products');
         // Handle both possible response formats
         const products = Array.isArray(response.data) ? response.data : 
                         response.data.products ? response.data.products : [];

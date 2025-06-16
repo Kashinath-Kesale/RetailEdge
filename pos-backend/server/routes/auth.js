@@ -9,6 +9,9 @@ router.use((req, res, next) => {
   console.log('Auth Route:', {
     method: req.method,
     path: req.path,
+    url: req.url,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
     query: req.query,
     body: req.body,
     headers: req.headers
@@ -18,7 +21,14 @@ router.use((req, res, next) => {
 
 // Auth routes
 router.post("/signup", authController.signup);
-router.get("/verify-email", authController.verifyEmail);
+router.get("/verify-email", (req, res, next) => {
+  console.log("Verify email route hit:", {
+    query: req.query,
+    path: req.path,
+    url: req.url
+  });
+  authController.verifyEmail(req, res, next);
+});
 router.post("/login", authController.login);
 
 // Protected routes

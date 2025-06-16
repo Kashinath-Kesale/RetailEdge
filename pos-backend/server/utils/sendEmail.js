@@ -11,25 +11,34 @@ const sendEmail = async ({ to, subject, html }) => {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
-      secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+      secure: false, // false for TLS
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      tls: {
+        // Do not fail on invalid certs
+        rejectUnauthorized: false
+      }
     });
 
     // Verify transporter configuration
     await transporter.verify();
     console.log("SMTP connection verified successfully");
 
+    // Clean up HTML content to ensure proper URL formatting
+    const cleanHtml = html.replace(/@https:\//g, 'https://');
+
     const mailOptions = {
       from: `"RetailEdge" <${process.env.EMAIL_FROM || process.env.SMTP_USER}>`,
       to,
       subject,
-      html,
+      html: cleanHtml,
     };
 
     console.log("Sending email to:", to);
+    console.log("Email content preview:", cleanHtml.substring(0, 200) + "...");
+    
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent successfully:", info.messageId);
     return info;

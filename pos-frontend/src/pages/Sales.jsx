@@ -52,7 +52,7 @@ const Sales = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await axiosInstance.get("/products");
+      const res = await axiosInstance.get("/api/products");
       if (Array.isArray(res.data)) {
         setProducts(res.data);
       } else if (res.data && Array.isArray(res.data.products)) {
@@ -70,7 +70,7 @@ const Sales = () => {
 
   const fetchSales = async () => {
     try {
-      const res = await axiosInstance.get("/sales");
+      const res = await axiosInstance.get("/api/sales");
       if (Array.isArray(res.data)) {
         setRecentSales(res.data.slice(0, 5)); // Get last 5 sales
       } else if (res.data && Array.isArray(res.data.sales)) {
@@ -181,7 +181,7 @@ const Sales = () => {
         customerEmail: customerEmail || undefined,
       };
 
-      const response = await axiosInstance.post("/sales", saleData);
+      const response = await axiosInstance.post("/api/sales", saleData);
 
       if (response.data.success) {
         toast.success("Sale completed successfully");

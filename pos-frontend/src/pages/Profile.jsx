@@ -26,7 +26,7 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.put("/auth/profile", formData);
+      const response = await axiosInstance.put("/api/auth/profile", formData);
       login(auth.token, response.data.user);
       toast.success("Profile updated successfully!");
       setIsEditing(false);

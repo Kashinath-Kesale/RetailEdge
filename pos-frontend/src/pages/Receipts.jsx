@@ -20,7 +20,7 @@ const Receipts = () => {
 
   const fetchSales = async () => {
     try {
-      const response = await axiosInstance.get("/sales");
+      const response = await axiosInstance.get("/api/sales");
       if (Array.isArray(response.data)) {
         setSales(response.data);
       } else if (response.data && Array.isArray(response.data.sales)) {
@@ -199,7 +199,7 @@ const Receipts = () => {
 
     try {
       setLoading(true);
-      const response = await axiosInstance.post(`/sales/${sale._id}/email-receipt`);
+      const response = await axiosInstance.post(`/api/sales/${sale._id}/email-receipt`);
       if (response.data.success) {
         toast.success("Receipt has been sent to customer's email");
       }
