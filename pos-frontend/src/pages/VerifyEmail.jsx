@@ -8,12 +8,19 @@ const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState('verifying');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [verified, setVerified] = useState(false);
 
   useEffect(() => {
     const verifyEmail = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
         const token = searchParams.get("token");
         if (!token) {
+          setError("No verification token found");
           setStatus('error');
           toast.error("Invalid verification link");
           setTimeout(() => navigate("/login"), 2000);
@@ -21,33 +28,31 @@ const VerifyEmail = () => {
         }
 
         console.log("Verifying email with token:", token);
-        console.log("Base URL:", process.env.REACT_APP_API_URL);
+        console.log("Using base URL:", process.env.REACT_APP_API_URL);
         
         const response = await axiosInstance.get(`/auth/verify-email?token=${token}`);
         console.log("Verification response:", response.data);
 
-        if (response.data.success || response.data.verified) {
+        if (response.data.success) {
+          setVerified(true);
           setStatus('success');
-          toast.success("Email verified successfully! You can now login.");
-          setTimeout(() => navigate("/login"), 2000);
+          toast.success("Email verified successfully!");
+          setTimeout(() => {
+            navigate("/login");
+          }, 2000);
         } else {
           setStatus('error');
+          setError(response.data.message || "Verification failed. Please try again.");
           toast.error(response.data.message || "Verification failed. Please try again.");
           setTimeout(() => navigate("/login"), 2000);
         }
-      } catch (error) {
-        console.error("Verification error:", error);
-        setStatus('error');
-        const errorMessage = error.response?.data?.message || error.response?.data?.msg || "Failed to verify email";
-        
-        if (errorMessage.toLowerCase().includes('already verified')) {
-          toast.success("Email already verified! You can now log in.");
-          setStatus('success');
-        } else {
-          toast.error(errorMessage);
-        }
-        
+      } catch (err) {
+        console.error("Verification error:", err);
+        setError(err.response?.data?.msg || "Verification failed. Please try again.");
+        toast.error(err.response?.data?.msg || "Verification failed. Please try again.");
         setTimeout(() => navigate("/login"), 2000);
+      } finally {
+        setLoading(false);
       }
     };
 

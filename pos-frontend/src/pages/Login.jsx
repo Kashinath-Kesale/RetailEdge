@@ -11,6 +11,7 @@ const Login = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,41 +24,48 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    if (!formData.email || !formData.password) {
-      toast.error("All fields are required");
-      setLoading(false);
-      return;
-    }
+    setError(null);
 
     try {
-      console.log("Sending login request with data:", { email: formData.email });
+      // Validate form
+      if (!validateForm()) {
+        setLoading(false);
+        return;
+      }
+
+      console.log("Sending login request with data:", {
+        email: formData.email,
+        password: formData.password,
+      });
+
       const response = await axiosInstance.post("/auth/login", {
         email: formData.email,
         password: formData.password,
       });
+
       console.log("Login response:", response.data);
 
-      if (response.data.token) {
+      if (response.data.success) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
-
-        if (!response.data.user.isVerified) {
-          toast.info("Please verify your email before proceeding");
-          navigate("/verify-email");
-          return;
-        }
-
         toast.success("Login successful!");
         navigate("/dashboard");
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      const errorMessage = error.response?.data?.message || error.response?.data?.msg || "Login failed";
-      toast.error(errorMessage);
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.response?.data?.msg || "Login failed. Please try again.");
+      toast.error(err.response?.data?.msg || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      toast.error("All fields are required");
+      return false;
+    }
+    return true;
   };
 
   return (
