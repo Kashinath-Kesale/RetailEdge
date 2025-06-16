@@ -65,7 +65,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ Logger
+// ✅ Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ✅ Serve receipts
+app.use('/receipts', express.static(path.join(__dirname, 'server/receipts')));
+
+// Log all requests
 app.use((req, res, next) => {
   console.log('Incoming Request:', {
     method: req.method,
@@ -80,12 +87,28 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Root route handler
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'RetailEdge API is running',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV,
+    endpoints: {
+      auth: '/api/auth',
+      products: '/api/products',
+      sales: '/api/sales',
+      receipts: '/api/receipts',
+      payments: '/api/payments',
+      dashboard: '/api/dashboard'
+    }
+  });
+});
 
-// ✅ Serve receipts
-app.use('/receipts', express.static(path.join(__dirname, 'server/receipts')));
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // ✅ API Routes
 console.log('Mounting routes...');
@@ -95,17 +118,6 @@ app.use("/api/sales", salesRoutes);
 app.use("/api/receipts", receiptRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/payments", paymentRoutes);
-
-// ✅ Health Check
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    environment: process.env.NODE_ENV,
-    frontendUrl: process.env.FRONTEND_URL,
-    backendUrl: process.env.BACKEND_URL,
-    allowedOrigins
-  });
-});
 
 // ✅ Error Handler
 app.use((err, req, res, next) => {
