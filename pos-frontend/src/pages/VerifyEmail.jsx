@@ -28,7 +28,7 @@ const VerifyEmail = () => {
       try {
         setVerifying(true);
         console.log("Sending verification request");
-        const response = await axiosInstance.post("/auth/verify-email", { token });
+        const response = await axiosInstance.get(`/auth/verify-email?token=${token}`);
         console.log("Verification response:", response.data);
 
         if (response.data.success) {
