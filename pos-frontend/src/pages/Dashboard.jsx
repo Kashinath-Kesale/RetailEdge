@@ -14,24 +14,29 @@ export default function Dashboard() {
       currentMonth: 0,
       previousMonth: 0,
       trend: []
-    }
+    },
+    paymentStats: [],
+    topProducts: []
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Get total sales and revenue
+        // Get dashboard summary data
+        const summaryResponse = await axios.get("/api/dashboard/summary");
+        const summary = summaryResponse.data;
+
+        // Get payment methods stats
+        const paymentStatsResponse = await axios.get("/api/dashboard/payment-methods");
+        const paymentStats = paymentStatsResponse.data.paymentStats;
+
+        // Get top products
+        const topProductsResponse = await axios.get("/api/dashboard/top-products");
+        const topProducts = topProductsResponse.data.topProducts;
+
+        // Get sales data for trend analysis
         const salesResponse = await axios.get("/api/sales");
         const sales = Array.isArray(salesResponse.data) ? salesResponse.data : [];
-        
-        // Get total products
-        const productsResponse = await axios.get("/api/products");
-        const products = productsResponse.data.products || [];
-
-        // Calculate total revenue and sales count
-        const totalRevenue = sales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
-        const totalSales = sales.length;
-        const totalProducts = products.length;
 
         // Calculate revenue growth with proper month handling
         const currentMonthStart = moment().startOf('month');
@@ -52,7 +57,6 @@ export default function Dashboard() {
 
         // Calculate growth percentage with better handling of edge cases
         let revenueGrowth = 0;
-
         if (previousMonthRevenue === 0) {
           if (currentMonthRevenue > 0) {
             revenueGrowth = 100; // New revenue
@@ -62,16 +66,6 @@ export default function Dashboard() {
         } else {
           revenueGrowth = ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
         }
-
-        console.log('Revenue Growth Debug:', {
-          currentMonth: currentMonthStart.format('MMM YYYY'),
-          previousMonth: previousMonthStart.format('MMM YYYY'),
-          currentMonthSales: currentMonthSales.length,
-          previousMonthSales: previousMonthSales.length,
-          currentMonthRevenue,
-          previousMonthRevenue,
-          revenueGrowth
-        });
 
         // Calculate 6-month trend
         const trend = Array.from({ length: 6 }, (_, i) => {
@@ -87,15 +81,17 @@ export default function Dashboard() {
         }).reverse();
 
         setDashboardData({
-          totalRevenue,
-          totalSales,
-          totalProducts,
+          totalRevenue: summary.totalRevenue || 0,
+          totalSales: summary.totalSales || 0,
+          totalProducts: summary.totalProducts || 0,
           revenueGrowth: parseFloat(revenueGrowth.toFixed(2)),
           revenueData: {
             currentMonth: currentMonthRevenue,
             previousMonth: previousMonthRevenue,
             trend
-          }
+          },
+          paymentStats,
+          topProducts
         });
       } catch (error) {
         console.error("Dashboard fetch error:", error);
@@ -236,6 +232,62 @@ export default function Dashboard() {
             ) : (
               'No sales data available'
             )}
+          </div>
+        </div>
+
+        {/* Payment Methods Section */}
+        <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Payment Methods</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {dashboardData.paymentStats.map((stat, index) => (
+              <div key={index} className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 capitalize">{stat._id || 'Unknown'}</p>
+                <p className="text-lg font-semibold text-gray-800 mt-1">
+                  {stat.count} transactions
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Top Products Section */}
+        <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Top Selling Products</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Units Sold
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {dashboardData.topProducts.map((product, index) => (
+                  <tr key={index}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {product.product?.name || 'Unknown Product'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500">
+                        {product.product?.category || 'Uncategorized'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{product.totalSold}</div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
