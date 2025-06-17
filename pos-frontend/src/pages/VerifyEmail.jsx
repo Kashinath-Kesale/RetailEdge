@@ -48,13 +48,10 @@ const VerifyEmail = () => {
         // Development mode: Auto-verify
         if (process.env.NODE_ENV === 'development') {
           console.log("Development mode: Auto-verifying email");
-          const user = JSON.parse(localStorage.getItem("user") || "{}");
-          user.isVerified = true;
-          localStorage.setItem("user", JSON.stringify(user));
           setVerified(true);
           setStatus('success');
           toast.success("Email verified successfully (Development Mode)!");
-          setTimeout(() => navigate("/dashboard"), 2000);
+          setTimeout(() => navigate("/login"), 2000);
           return;
         }
 
@@ -74,23 +71,23 @@ const VerifyEmail = () => {
         if (response.data.success || response.data.verified) {
           setVerified(true);
           setStatus('success');
-          toast.success("Email verified successfully!");
+          toast.success("Email verified successfully! Please login to continue.");
           
-          const user = JSON.parse(localStorage.getItem("user") || "{}");
-          user.isVerified = true;
-          localStorage.setItem("user", JSON.stringify(user));
+          // Clear any existing auth data
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           
-          setTimeout(() => navigate("/dashboard"), 2000);
+          setTimeout(() => navigate("/login"), 2000);
         } else if (response.data.message?.toLowerCase().includes('already verified')) {
           setVerified(true);
           setStatus('success');
-          toast.success("Email already verified! Redirecting to dashboard...");
+          toast.success("Email already verified! Please login to continue.");
           
-          const user = JSON.parse(localStorage.getItem("user") || "{}");
-          user.isVerified = true;
-          localStorage.setItem("user", JSON.stringify(user));
+          // Clear any existing auth data
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           
-          setTimeout(() => navigate("/dashboard"), 2000);
+          setTimeout(() => navigate("/login"), 2000);
         } else {
           setStatus('error');
           setError(response.data.message || "Verification failed. Please try again.");
@@ -141,7 +138,7 @@ const VerifyEmail = () => {
                 Email verified successfully!
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                Redirecting to dashboard...
+                Redirecting to login page...
               </p>
             </div>
           )}
