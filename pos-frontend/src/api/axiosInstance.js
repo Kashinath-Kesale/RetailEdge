@@ -2,18 +2,14 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 // Create axios instance with base configuration
-const baseURL = process.env.REACT_APP_API_URL;
+const baseURL = process.env.REACT_APP_API_URL || 'https://retailedge-backend.onrender.com';
 console.log("Initializing axios with baseURL:", baseURL);
 
-// Ensure baseURL doesn't end with a slash and includes /api
-const cleanBaseURL = baseURL?.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
-const finalBaseURL = `${cleanBaseURL}/api`;
-console.log("Final baseURL:", finalBaseURL);
-
 const axiosInstance = axios.create({
-  baseURL: finalBaseURL,
+  baseURL: `${baseURL}/api`,
   headers: {
     "Content-Type": "application/json",
+    "Accept": "application/json, text/plain, */*"
   },
   validateStatus: function (status) {
     return status >= 200 && status < 500; // Accept all status codes less than 500
@@ -39,12 +35,11 @@ axiosInstance.interceptors.request.use(
     // Log request details
     console.log("📡 Request to:", config.url);
     console.log("🌐 Full URL:", `${config.baseURL}${config.url}`);
-    console.log("🔀 Method:", config.method);
-    console.log("🧾 Headers:", {
-      ...config.headers,
-      Authorization: config.headers.Authorization ? "Bearer [REDACTED]" : undefined
-    });
-    console.log("📦 Data:", config.data);
+    console.log("🔀 Method:", config.method.toUpperCase());
+    console.log("🧾 Headers:", config.headers);
+    if (config.data) {
+      console.log("📦 Data:", config.data);
+    }
 
     return config;
   },
@@ -66,30 +61,16 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-    const status = error.response?.status;
-    const message = error.response?.data?.msg || error.response?.data?.message || "An error occurred";
-
-    console.error("❌ Response error:", error);
-    console.error("🔍 Error details:", {
-      status,
-      statusText: error.response?.statusText,
+    console.error("❌ Response error:", {
+      status: error.response?.status,
       data: error.response?.data,
-      config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        baseURL: error.config?.baseURL,
-        headers: {
-          ...error.config?.headers,
-          Authorization: error.config?.headers?.Authorization ? "Bearer [REDACTED]" : undefined
-        },
-      },
+      message: error.message
     });
 
-    // Handle 401 Unauthorized and 403 Forbidden
-    if (status === 401 || status === 403) {
+    // Handle authentication errors
+    if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-
       if (!window.location.pathname.includes("/login")) {
         toast.error("Session expired. Please login again.");
         setTimeout(() => {
@@ -98,18 +79,23 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // Handle 404 Not Found
-    if (status === 404) {
-      toast.error("Resource not found. Please try again later.");
+    // Handle network errors
+    if (!error.response) {
+      console.error("Network error:", error.message);
+      return Promise.reject(new Error("Network error. Please check your internet connection."));
     }
 
-    // Handle 400 Bad Request
-    if (status === 400) {
-      toast.error(message || "Invalid request. Please check your input.");
+    // Handle server errors
+    if (error.response?.status >= 500) {
+      console.error("Server error:", error.response.data);
+      return Promise.reject(new Error("Server error. Please try again later."));
     }
 
-    // Show default error message
-    toast.error(message);
+    // Handle validation errors
+    if (error.response?.status === 400) {
+      const message = error.response.data?.message || "Invalid request";
+      return Promise.reject(new Error(message));
+    }
 
     return Promise.reject(error);
   }

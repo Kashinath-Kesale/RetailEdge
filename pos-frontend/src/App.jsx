@@ -1,7 +1,7 @@
 // src/App.jsx
 import React from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,10 +16,11 @@ import Products from "./pages/Products";
 import Sales from "./pages/Sales";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
+import './App.css';
 
 const App = () => {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <div className="min-h-screen bg-gray-100">
           <ToastContainer
@@ -32,6 +33,7 @@ const App = () => {
             pauseOnFocusLoss
             draggable
             pauseOnHover
+            theme="light"
           />
           <Routes>
             {/* Public routes */}
@@ -102,7 +104,7 @@ const App = () => {
             />
 
             {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           </Routes>
         </div>
       </AuthProvider>
