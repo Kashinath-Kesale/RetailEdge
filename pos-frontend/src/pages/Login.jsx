@@ -1,17 +1,27 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosInstance from "../api/axiosInstance";
-import { FiMail, FiLock } from "react-icons/fi";
+import { FiMail, FiLock, FiShoppingBag } from "react-icons/fi";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Check for verification token in URL
+  useEffect(() => {
+    const token = new URLSearchParams(location.search).get("token");
+    if (token) {
+      console.log("Found verification token in URL, redirecting to verify-email page");
+      navigate(`/verify-email?token=${token}`);
+    }
+  }, [location.search, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,6 +37,13 @@ const Login = () => {
     setError("");
 
     try {
+      // Validate form
+      if (!formData.email || !formData.password) {
+        toast.error("Please fill in all fields");
+        setLoading(false);
+        return;
+      }
+
       console.log("Sending login request with data:", formData);
       const response = await axiosInstance.post("/auth/login", formData);
       console.log("Login response:", response.data);
@@ -71,10 +88,9 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Welcome back</h2>
-          <p className="mt-1 text-xs text-gray-500">
-            Sign in to your RetailEdge account
-          </p>
+          <FiShoppingBag className="h-8 w-8 text-indigo-600 mx-auto" />
+          <h2 className="mt-2 text-xl font-bold text-gray-900">Welcome back</h2>
+          <p className="mt-1 text-xs text-gray-500">Sign in to your RetailEdge account</p>
         </div>
 
         <div className="bg-white py-5 px-4 shadow-md rounded-lg border border-gray-100">
@@ -97,6 +113,7 @@ const Login = () => {
                   className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-9 pr-3 text-sm border-gray-300 rounded-md transition duration-150 ease-in-out h-9"
                   placeholder="you@example.com"
                   required
+                  autoComplete="email"
                 />
               </div>
             </div>
@@ -119,6 +136,7 @@ const Login = () => {
                   className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-9 pr-3 text-sm border-gray-300 rounded-md transition duration-150 ease-in-out h-9"
                   placeholder="••••••••"
                   required
+                  autoComplete="current-password"
                 />
               </div>
             </div>

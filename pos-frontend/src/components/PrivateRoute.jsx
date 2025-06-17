@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import axiosInstance from '../api/axiosInstance';
+import axiosInstance from "../api/axiosInstance";
+import { FiLoader } from "react-icons/fi";
 
 const PrivateRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
@@ -13,7 +14,10 @@ const PrivateRoute = ({ children }) => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("token");
-        console.log("Checking authentication...", { token: !!token });
+        console.log("Checking authentication...", { 
+          hasToken: !!token,
+          path: location.pathname 
+        });
 
         if (!token) {
           console.log("No token found, redirecting to login");
@@ -23,18 +27,18 @@ const PrivateRoute = ({ children }) => {
         }
 
         // Set default headers for all requests
-        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         // Get user data from localStorage
         const user = JSON.parse(localStorage.getItem("user") || "{}");
-        console.log("User data from localStorage:", { 
+        console.log("User data from localStorage:", {
           hasUser: !!user,
           isVerified: user.isVerified,
-          role: user.role
+          role: user.role,
         });
 
         // In development mode, skip verification
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === "development") {
           console.log("Development mode: Skipping verification");
           setIsAuthenticated(true);
           setIsVerified(true);
@@ -48,6 +52,7 @@ const PrivateRoute = ({ children }) => {
           setIsAuthenticated(true);
           setIsVerified(false);
           setLoading(false);
+          toast.info("Please verify your email before proceeding");
           return;
         }
 
@@ -69,8 +74,11 @@ const PrivateRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="text-center">
+          <FiLoader className="animate-spin h-8 w-8 text-indigo-600 mx-auto" />
+          <p className="mt-2 text-sm text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
