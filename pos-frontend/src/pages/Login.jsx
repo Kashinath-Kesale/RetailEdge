@@ -45,7 +45,7 @@ const Login = () => {
       }
 
       console.log("Sending login request with data:", formData);
-      const response = await axiosInstance.post("/auth/login", formData);
+      const response = await axiosInstance.post("/api/auth/login", formData);
       console.log("Login response:", response.data);
 
       if (response.data.token) {
