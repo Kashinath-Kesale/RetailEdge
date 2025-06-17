@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { FiUser, FiEdit2, FiLock, FiX, FiMail, FiShield, FiUserCheck, FiSave } from "react-icons/fi";
+import { FiUser, FiEdit2, FiLock, FiX, FiMail, FiShield, FiSave } from "react-icons/fi";
 import axiosInstance from "../api/axiosInstance";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -36,112 +36,95 @@ const Profile = () => {
   };
 
   const handleCancelEdit = () => {
-    setFormData({ name: user?.name || "" }); // Reset to original name
+    setFormData({ name: user?.name || "" });
     setIsEditing(false);
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center animate-fadeIn p-4">
-      <div className="bg-white rounded-xl p-4 w-full max-w-md animate-slideIn relative">
+    <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg w-full max-w-md shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-lg">
-              <FiUser className="text-lg" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Profile Settings
-              </h2>
-              <p className="text-xs text-gray-500">Manage your account settings</p>
-            </div>
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Profile Settings</h2>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="text-gray-400 hover:text-gray-500"
+            >
+              <FiX size={20} />
+            </button>
           </div>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="text-gray-500 hover:text-gray-700 transform hover:rotate-90 transition-transform duration-300"
-          >
-            <FiX size={24} />
-          </button>
         </div>
 
-        <div className="space-y-3">
+        <div className="p-6 space-y-6">
           {/* Personal Information */}
-          <section className="bg-gradient-to-br from-white to-gray-50 p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-            <h3 className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
-              <FiUserCheck className="text-blue-600 mr-2" />
-              Personal Information
-            </h3>
-            <form onSubmit={handleSubmit} className="relative">
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                disabled={!isEditing}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-300"
-              />
-              {!isEditing ? (
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(true)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
-                  title="Edit Name"
-                >
-                  <FiEdit2 size={14} />
-                </button>
-              ) : (
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
-                  <button
-                    type="submit"
-                    className="text-green-500 hover:text-green-700 transition-colors"
-                    title="Save Changes"
-                  >
-                    <FiSave size={14} />
-                  </button>
+          <div>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Personal Information</h3>
+            <form onSubmit={handleSubmit}>
+              <div className="relative">
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  placeholder="Your name"
+                />
+                {!isEditing ? (
                   <button
                     type="button"
-                    onClick={handleCancelEdit}
-                    className="text-red-500 hover:text-red-700 transition-colors"
-                    title="Cancel Edit"
+                    onClick={() => setIsEditing(true)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    <FiX size={14} />
+                    <FiEdit2 size={16} />
                   </button>
-                </div>
-              )}
+                ) : (
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+                    <button
+                      type="submit"
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      <FiSave size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <FiX size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
             </form>
-          </section>
+          </div>
 
           {/* Contact Information */}
-          <section className="bg-gradient-to-br from-white to-gray-50 p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-            <h3 className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
-              <FiMail className="text-purple-600 mr-2" />
-              Contact Information
-            </h3>
-            <div className="px-3 py-1.5 bg-gray-50 rounded-md border border-gray-200">
-              <span className="text-gray-900 text-sm">{user.email}</span>
+          <div>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Contact Information</h3>
+            <div className="px-3 py-2 bg-gray-50 rounded-md border border-gray-200">
+              <span className="text-sm text-gray-900">{user.email}</span>
             </div>
-          </section>
+          </div>
 
           {/* Account Information */}
-          <section className="bg-gradient-to-br from-white to-gray-50 p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-            <h3 className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
-              <FiShield className="text-green-600 mr-2" />
-              Account Information
-            </h3>
-            <div className="space-y-2">
-              <div className="px-3 py-1.5 bg-gray-50 rounded-md border border-gray-200">
-                <span className="text-gray-900 text-sm capitalize">{user.role}</span>
+          <div>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Account Information</h3>
+            <div className="space-y-3">
+              <div className="px-3 py-2 bg-gray-50 rounded-md border border-gray-200">
+                <span className="text-sm text-gray-900 capitalize">{user.role}</span>
               </div>
               <button
                 onClick={() => navigate('/change-password')}
-                className="w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-md shadow-sm hover:shadow-md transition-all duration-300 text-sm font-medium"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors text-sm font-medium"
               >
-                <FiLock size={14} />
+                <FiLock size={16} />
                 Change Password
               </button>
             </div>
-          </section>
+          </div>
         </div>
       </div>
     </div>
