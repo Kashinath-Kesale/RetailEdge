@@ -31,7 +31,7 @@ const VerifyEmail = () => {
         const response = await axiosInstance.get(`/auth/verify-email?token=${token}`);
         console.log("Verification response:", response.data);
 
-        if (response.data.success) {
+        if (response.data.verified || response.data.success) {
           setVerified(true);
           toast.success("Email verified successfully! Please log in to continue.");
           
@@ -43,6 +43,9 @@ const VerifyEmail = () => {
           setTimeout(() => {
             navigate("/login");
           }, 2000);
+        } else {
+          setError(response.data.message || "Verification failed");
+          toast.error(response.data.message || "Verification failed");
         }
       } catch (error) {
         console.error("Verification error:", error);
