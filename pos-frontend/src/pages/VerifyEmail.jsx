@@ -77,7 +77,10 @@ const VerifyEmail = () => {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           
-          setTimeout(() => navigate("/login"), 2000);
+          // Force a small delay to ensure localStorage is cleared
+          setTimeout(() => {
+            navigate("/login", { replace: true });
+          }, 2000);
         } else if (response.data.message?.toLowerCase().includes('already verified')) {
           setVerified(true);
           setStatus('success');
@@ -87,7 +90,10 @@ const VerifyEmail = () => {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           
-          setTimeout(() => navigate("/login"), 2000);
+          // Force a small delay to ensure localStorage is cleared
+          setTimeout(() => {
+            navigate("/login", { replace: true });
+          }, 2000);
         } else {
           setStatus('error');
           setError(response.data.message || "Verification failed. Please try again.");
