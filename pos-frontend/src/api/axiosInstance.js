@@ -6,7 +6,7 @@ const baseURL = process.env.REACT_APP_API_URL || 'https://retailedge-backend.onr
 console.log("Initializing axios with baseURL:", baseURL);
 
 const axiosInstance = axios.create({
-  baseURL: `${baseURL}/api`,
+  baseURL: baseURL,
   headers: {
     "Content-Type": "application/json",
     "Accept": "application/json, text/plain, */*"

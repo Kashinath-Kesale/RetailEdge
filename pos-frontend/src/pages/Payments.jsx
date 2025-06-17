@@ -19,7 +19,7 @@ export default function Payments() {
       // Fetch sales data instead of payments
       const res = await axiosInstance.get("/api/sales");
       // Transform sales data into payment format
-      const transformedPayments = res.data.map(sale => ({
+      const transformedPayments = Array.isArray(res.data) ? res.data.map(sale => ({
         _id: sale._id,
         date: sale.createdAt || sale.date,
         customerName: sale.customerName || "Walk-in Customer",
@@ -29,7 +29,7 @@ export default function Payments() {
         reference: `SALE-${sale._id.slice(-6).toUpperCase()}`,
         items: sale.products || sale.items,
         transactionId: sale._id
-      }));
+      })) : [];
       setPayments(transformedPayments);
     } catch (err) {
       console.error("Payment fetch error:", err);
