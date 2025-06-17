@@ -48,7 +48,7 @@ const Signup = () => {
       const { confirmPassword, ...signupData } = formData;
 
       console.log("Sending signup request with data:", signupData);
-      const response = await axiosInstance.post("/auth/signup", signupData);
+      const response = await axiosInstance.post("/api/auth/signup", signupData);
       console.log("Signup response:", response.data);
 
       if (response.status === 201) {
