@@ -12,9 +12,7 @@ const Login = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  // Check for verification token in URL
   useEffect(() => {
     const token = new URLSearchParams(location.search).get("token");
     if (token) {
@@ -34,10 +32,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
-      // Validate form
       if (!formData.email || !formData.password) {
         toast.error("Please fill in all fields");
         setLoading(false);
@@ -49,20 +45,15 @@ const Login = () => {
       console.log("Login response:", response.data);
 
       if (response.data.token) {
-        // Store token
         localStorage.setItem("token", response.data.token);
-        
-        // Get user data and ensure isVerified is a boolean
+
         const userData = {
           ...response.data.user,
-          isVerified: Boolean(response.data.user.isVerified)
+          isVerified: Boolean(response.data.user.isVerified),
         };
-        
-        // Store user data
         localStorage.setItem("user", JSON.stringify(userData));
         console.log("Stored user data:", userData);
 
-        // Check verification status
         if (!userData.isVerified) {
           console.log("User not verified, redirecting to verify-email");
           toast.info("Please verify your email before proceeding");
@@ -70,14 +61,15 @@ const Login = () => {
           return;
         }
 
-        // If verified, proceed to dashboard
         toast.success("Login successful!");
         navigate("/dashboard");
       }
     } catch (error) {
       console.error("Login error:", error);
-      const errorMessage = error.response?.data?.message || error.response?.data?.msg || "Login failed";
-      setError(errorMessage);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.msg ||
+        "Login failed";
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -85,107 +77,95 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 justify-center items-center px-4">
+      <div className="max-w-md w-full bg-white p-8 rounded-md shadow-md">
         <div className="text-center mb-6">
-          <FiShoppingBag className="h-8 w-8 text-indigo-600 mx-auto" />
-          <h2 className="mt-2 text-xl font-bold text-gray-900">Welcome back</h2>
-          <p className="mt-1 text-xs text-gray-500">Sign in to your RetailEdge account</p>
+          <FiShoppingBag className="h-8 w-8 text-[var(--retailedge-primary)] mx-auto" />
+          <h2 className="mt-2 text-2xl font-bold brand-text">RetailEdge</h2>
+          <p className="mt-1 text-sm text-gray-500">Sign in to your account</p>
         </div>
 
-        <div className="bg-white py-5 px-4 shadow-md rounded-lg border border-gray-100">
-          <form className="space-y-3" onSubmit={handleSubmit}>
-            {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-xs font-medium text-gray-700 mb-1">
-                Email address
-              </label>
-              <div className="relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiMail className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-9 pr-3 text-sm border-gray-300 rounded-md transition duration-150 ease-in-out h-9"
-                  placeholder="you@example.com"
-                  required
-                  autoComplete="email"
-                />
-              </div>
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-xs font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <div className="relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiLock className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-9 pr-3 text-sm border-gray-300 rounded-md transition duration-150 ease-in-out h-9"
-                  placeholder="••••••••"
-                  required
-                  autoComplete="current-password"
-                />
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full flex justify-center py-1.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out ${
-                  loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              >
-                {loading ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Signing in...
-                  </div>
-                ) : (
-                  "Sign in"
-                )}
-              </button>
-            </div>
-          </form>
-
-          {/* Sign up link */}
-          <div className="mt-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email */}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
             <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FiMail className="h-5 w-5 text-gray-400" />
               </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="px-2 bg-white text-gray-500">Don't have an account?</span>
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <Link
-                to="/signup"
-                className="w-full flex justify-center py-1.5 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
-              >
-                Create a new account
-              </Link>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                autoComplete="email"
+                placeholder="you@example.com"
+                className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              />
             </div>
           </div>
+
+          {/* Password */}
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FiLock className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                autoComplete="current-password"
+                placeholder="••••••••"
+                className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Submit */}
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full flex justify-center items-center py-2 px-4 text-sm font-medium text-white bg-indigo-600 rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                  Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
+            </button>
+          </div>
+        </form>
+
+        {/* Footer */}
+        <div className="mt-6 text-center text-sm text-gray-600">
+          Don't have an account?{" "}
+          <Link
+            to="/signup"
+            className="font-medium text-indigo-600 hover:text-indigo-500"
+          >
+            Sign up
+          </Link>
         </div>
       </div>
     </div>
   );
 };
 
-export default Login; 
+export default Login;

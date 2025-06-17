@@ -72,178 +72,169 @@ const Signup = () => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 justify-center items-center px-4">
+      <div className="max-w-md w-full bg-white p-8 rounded-md shadow-md">
         <div className="text-center mb-6">
-          <FiShoppingBag className="h-8 w-8 text-indigo-600 mx-auto" />
-          <h2 className="mt-2 text-xl font-bold text-gray-900">Create your account</h2>
-          <p className="mt-1 text-xs text-gray-500">
-            Join RetailEdge and start managing your business
-          </p>
+          <FiShoppingBag className="h-8 w-8 text-[var(--retailedge-primary)] mx-auto" />
+          <h2 className="mt-2 text-2xl font-bold brand-text">RetailEdge</h2>
+          <p className="mt-1 text-sm text-gray-500">Create your account</p>
         </div>
 
-        <div className="bg-white py-5 px-4 shadow-md rounded-lg border border-gray-100">
-          <form className="space-y-3" onSubmit={handleSubmit}>
-            {/* Name Field */}
-            <InputField
-              label="Full Name"
-              id="name"
-              name="name"
-              type="text"
-              icon={<FiUser className="h-4 w-4 text-gray-400" />}
-              placeholder="John Doe"
-              value={formData.name}
-              onChange={handleChange}
-            />
-
-            {/* Email Field */}
-            <InputField
-              label="Email address"
-              id="email"
-              name="email"
-              type="email"
-              icon={<FiMail className="h-4 w-4 text-gray-400" />}
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={handleChange}
-            />
-
-            {/* Password Field */}
-            <InputField
-              label="Password"
-              id="password"
-              name="password"
-              type="password"
-              icon={<FiLock className="h-4 w-4 text-gray-400" />}
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-            />
-
-            {/* Confirm Password Field */}
-            <InputField
-              label="Confirm Password"
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              icon={<FiLock className="h-4 w-4 text-gray-400" />}
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
-
-            {/* Role Selection */}
-            <div>
-              <label htmlFor="role" className="block text-xs font-medium text-gray-700 mb-1">
-                Select Your Role
-              </label>
-              <div className="relative rounded-md shadow-sm">
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-8 text-sm border-gray-300 rounded-md transition duration-150 ease-in-out h-9 appearance-none bg-white"
-                >
-                  {roleOptions.map((role) => (
-                    <option key={role.value} value={role.value}>
-                      {role.label}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                  <FiChevronDown className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full flex justify-center py-1.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out ${
-                  loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              >
-                {loading ? (
-                  <LoadingSpinner text="Creating account..." />
-                ) : (
-                  "Create account"
-                )}
-              </button>
-            </div>
-          </form>
-
-          {/* Already have account */}
-          <div className="mt-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Name Field */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Full Name
+            </label>
             <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FiUser className="h-5 w-5 text-gray-400" />
               </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="px-2 bg-white text-gray-500">Already have an account?</span>
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <Link
-                to="/login"
-                className="w-full flex justify-center py-1.5 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
-              >
-                Sign in to your account
-              </Link>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                autoComplete="name"
+                placeholder="Enter your name"
+                className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              />
             </div>
           </div>
+
+          {/* Email Field */}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FiMail className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                autoComplete="email"
+                placeholder="you@example.com"
+                className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Password Field */}
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FiLock className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                autoComplete="new-password"
+                placeholder="••••••••"
+                className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Confirm Password Field */}
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              Confirm Password
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FiLock className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="password"
+                name="confirmPassword"
+                id="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                autoComplete="new-password"
+                placeholder="••••••••"
+                className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Role Selection */}
+          <div>
+            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+              Select Your Role
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FiUser className="h-5 w-5 text-gray-400" />
+              </div>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="pl-10 pr-10 py-2 w-full border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm appearance-none bg-white"
+              >
+                {roleOptions.map((role) => (
+                  <option key={role.value} value={role.value}>
+                    {role.label}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <FiChevronDown className="h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full flex justify-center items-center py-2 px-4 text-sm font-medium text-white bg-indigo-600 rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                  Creating account...
+                </>
+              ) : (
+                "Create account"
+              )}
+            </button>
+          </div>
+        </form>
+
+        {/* Footer */}
+        <div className="mt-6 text-center text-sm text-gray-600">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-medium text-indigo-600 hover:text-indigo-500"
+          >
+            Sign in
+          </Link>
         </div>
       </div>
     </div>
   );
 };
-
-// Reusable input field component
-const InputField = ({ label, id, name, type, icon, placeholder, value, onChange }) => (
-  <div>
-    <label htmlFor={id} className="block text-xs font-medium text-gray-700 mb-1">
-      {label}
-    </label>
-    <div className="relative rounded-md shadow-sm">
-      <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-        {icon}
-      </div>
-      <input
-        id={id}
-        name={name}
-        type={type}
-        value={value}
-        onChange={onChange}
-        required
-        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 text-sm border-gray-300 rounded-md transition duration-150 ease-in-out h-9"
-        placeholder={placeholder}
-      />
-    </div>
-  </div>
-);
-
-// Spinner with optional text
-const LoadingSpinner = ({ text }) => (
-  <div className="flex items-center">
-    <svg
-      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 
-        1.135 5.824 3 7.938l3-2.647z"
-      ></path>
-    </svg>
-    {text}
-  </div>
-);
 
 export default Signup;

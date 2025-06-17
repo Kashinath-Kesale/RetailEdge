@@ -13,7 +13,6 @@ import {
   FiInfo,
   FiLogOut,
 } from "react-icons/fi";
-import { toast } from "react-toastify";
 import About from "../pages/About";
 import LowStockNotifier from "../components/LowStockNotifier";
 
@@ -23,7 +22,7 @@ const Layout = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { auth, logout, userRole } = useAuth();
+  const { logout, userRole } = useAuth();
 
   useEffect(() => {
     const handleResize = () => {

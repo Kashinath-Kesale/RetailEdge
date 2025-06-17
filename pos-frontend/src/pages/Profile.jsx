@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { FiUser, FiEdit2, FiLock, FiX, FiMail, FiShield, FiSave } from "react-icons/fi";
+import { FiEdit2, FiLock, FiX, FiSave } from "react-icons/fi";
 import axiosInstance from "../api/axiosInstance";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
