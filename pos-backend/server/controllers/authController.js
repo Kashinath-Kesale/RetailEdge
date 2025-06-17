@@ -238,55 +238,52 @@ exports.verifyEmail = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("Login request received:", { email });
 
-    if (!email || !password) {
-      return res.status(400).json({ 
-        message: "Email and password are required",
-        details: {
-          email: !email,
-          password: !password
-        }
-      });
-    }
-
+    // Find user
     const user = await User.findOne({ email: email.trim().toLowerCase() });
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    if (!user.isVerified) {
-      return res.status(403).json({ 
-        message: "Please verify your email first",
-        details: "Check your inbox for the verification email"
-      });
-    }
-
-    const isMatch = await user.matchPassword(password);
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
+    // Generate token
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
+    // Prepare user data
+    const userData = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isVerified: Boolean(user.isVerified) // Ensure boolean value
+    };
+
+    console.log("Login successful:", {
+      userId: user._id,
+      email: user.email,
+      isVerified: userData.isVerified
+    });
+
     res.status(200).json({
       message: "Login successful",
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
+      user: userData
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ 
-      message: "Server error", 
-      error: process.env.NODE_ENV === 'development' ? error.stack : undefined 
+    res.status(500).json({
+      message: "Login failed",
+      error: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };

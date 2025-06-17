@@ -32,12 +32,21 @@ const Login = () => {
       console.log("Login response:", response.data);
 
       if (response.data.token) {
-        // Store token and user data
+        // Store token
         localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+        
+        // Get user data and ensure isVerified is a boolean
+        const userData = {
+          ...response.data.user,
+          isVerified: Boolean(response.data.user.isVerified)
+        };
+        
+        // Store user data
+        localStorage.setItem("user", JSON.stringify(userData));
+        console.log("Stored user data:", userData);
 
         // Check verification status
-        if (!response.data.user.isVerified) {
+        if (!userData.isVerified) {
           console.log("User not verified, redirecting to verify-email");
           toast.info("Please verify your email before proceeding");
           navigate("/verify-email");
