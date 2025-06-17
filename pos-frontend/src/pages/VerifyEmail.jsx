@@ -28,7 +28,7 @@ const VerifyEmail = () => {
       try {
         setVerifying(true);
         console.log("Sending verification request");
-        const response = await axiosInstance.get(`/auth/verify-email?token=${token}`);
+        const response = await axiosInstance.get(`/api/auth/verify-email?token=${token}`);
         console.log("Verification response:", response.data);
 
         if (response.data.verified || response.data.success) {
@@ -64,7 +64,7 @@ const VerifyEmail = () => {
   const handleResendVerification = async () => {
     try {
       setResending(true);
-      const response = await axiosInstance.post("/auth/resend-verification");
+      const response = await axiosInstance.post("/api/auth/resend-verification");
       console.log("Resend verification response:", response.data);
       toast.success("Verification email sent! Please check your inbox.");
     } catch (error) {
