@@ -14,6 +14,8 @@ import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Sales from "./pages/Sales";
+import Receipts from "./pages/Receipts";
+import Payments from "./pages/Payments";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
 import './App.css';
@@ -78,6 +80,26 @@ const App = () => {
                 <PrivateRoute>
                   <Layout>
                     <Sales />
+                  </Layout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/receipts"
+              element={
+                <PrivateRoute>
+                  <Layout>
+                    <Receipts />
+                  </Layout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/payments"
+              element={
+                <PrivateRoute>
+                  <Layout>
+                    <Payments />
                   </Layout>
                 </PrivateRoute>
               }

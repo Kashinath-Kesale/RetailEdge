@@ -45,29 +45,30 @@ const Layout = () => {
     navigate("/login");
   };
 
+  // Define menu items based on user role
   const menuItems = [
     { name: "Dashboard", path: "/dashboard", icon: <FiGrid /> },
-    (role === "admin" || role === "viewer") && {
-      name: "Products",
-      path: "/products",
-      icon: <FiShoppingBag />,
-    },
-    (role === "admin" || role === "cashier") && {
-      name: "Payments",
-      path: "/payments",
-      icon: <FiDollarSign />,
-    },
-    (role === "admin" || role === "cashier") && {
-      name: "Sales",
-      path: "/sales",
-      icon: <FiShoppingCart />,
-    },
-    (role === "admin" || role === "cashier" || role === "viewer") && {
-      name: "Receipts",
-      path: "/receipts",
-      icon: <FiFileText />,
-    },
-  ].filter(Boolean);
+    { name: "Products", path: "/products", icon: <FiShoppingBag /> },
+    { name: "Sales", path: "/sales", icon: <FiShoppingCart /> },
+    { name: "Receipts", path: "/receipts", icon: <FiFileText /> },
+    { name: "Payments", path: "/payments", icon: <FiDollarSign /> },
+  ];
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter(item => {
+    switch (item.path) {
+      case "/products":
+        return role === "admin" || role === "viewer";
+      case "/sales":
+        return role === "admin" || role === "cashier";
+      case "/receipts":
+        return role === "admin" || role === "cashier" || role === "viewer";
+      case "/payments":
+        return role === "admin" || role === "cashier";
+      default:
+        return true; // Dashboard is always visible
+    }
+  });
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -121,7 +122,7 @@ const Layout = () => {
       >
         <nav className="h-full flex flex-col">
           <div className="flex-1 flex flex-col gap-0.5 sm:gap-1 py-1.5 xs:py-2 sm:py-4">
-            {menuItems.map((item) => (
+            {filteredMenuItems.map((item) => (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
