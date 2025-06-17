@@ -26,7 +26,14 @@ const PrivateRoute = ({ children }) => {
         return;
       }
 
-      // Check if user is verified
+      // Development mode: Skip verification check
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Development mode: Skipping verification check");
+        setIsLoading(false);
+        return;
+      }
+
+      // Production mode: Check verification
       if (!user.isVerified) {
         console.log("User not verified, redirecting to verify-email");
         setRedirectPath("/verify-email");

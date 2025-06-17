@@ -45,6 +45,19 @@ const VerifyEmail = () => {
         setLoading(true);
         setError(null);
 
+        // Development mode: Auto-verify
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Development mode: Auto-verifying email");
+          const user = JSON.parse(localStorage.getItem("user") || "{}");
+          user.isVerified = true;
+          localStorage.setItem("user", JSON.stringify(user));
+          setVerified(true);
+          setStatus('success');
+          toast.success("Email verified successfully (Development Mode)!");
+          setTimeout(() => navigate("/dashboard"), 2000);
+          return;
+        }
+
         const token = searchParams.get("token");
         if (!token) {
           setError("No verification token found");
@@ -55,46 +68,33 @@ const VerifyEmail = () => {
         }
 
         console.log("Verifying email with token:", token);
-        console.log("Using base URL:", process.env.REACT_APP_API_URL);
-        
         const response = await axiosInstance.get(`/auth/verify-email?token=${token}`);
         console.log("Verification response:", response.data);
 
-        // Check if the response indicates success
         if (response.data.success || response.data.verified) {
           setVerified(true);
           setStatus('success');
           toast.success("Email verified successfully!");
           
-          // Update user verification status in localStorage
           const user = JSON.parse(localStorage.getItem("user") || "{}");
           user.isVerified = true;
           localStorage.setItem("user", JSON.stringify(user));
           
-          // Redirect to dashboard after successful verification
-          setTimeout(() => {
-            navigate("/dashboard", { replace: true });
-          }, 2000);
+          setTimeout(() => navigate("/dashboard"), 2000);
+        } else if (response.data.message?.toLowerCase().includes('already verified')) {
+          setVerified(true);
+          setStatus('success');
+          toast.success("Email already verified! Redirecting to dashboard...");
+          
+          const user = JSON.parse(localStorage.getItem("user") || "{}");
+          user.isVerified = true;
+          localStorage.setItem("user", JSON.stringify(user));
+          
+          setTimeout(() => navigate("/dashboard"), 2000);
         } else {
-          // Handle case where verification was already done
-          if (response.data.message?.toLowerCase().includes('already verified')) {
-            setVerified(true);
-            setStatus('success');
-            toast.success("Email already verified! Redirecting to dashboard...");
-            
-            // Update user verification status in localStorage
-            const user = JSON.parse(localStorage.getItem("user") || "{}");
-            user.isVerified = true;
-            localStorage.setItem("user", JSON.stringify(user));
-            
-            setTimeout(() => {
-              navigate("/dashboard", { replace: true });
-            }, 2000);
-          } else {
-            setStatus('error');
-            setError(response.data.message || "Verification failed. Please try again.");
-            toast.error(response.data.message || "Verification failed. Please try again.");
-          }
+          setStatus('error');
+          setError(response.data.message || "Verification failed. Please try again.");
+          toast.error(response.data.message || "Verification failed. Please try again.");
         }
       } catch (err) {
         console.error("Verification error:", err);
@@ -155,8 +155,15 @@ const VerifyEmail = () => {
                 Verification Failed
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                Redirecting to login page...
+                {error || "Please try again or contact support"}
               </p>
+              <button
+                onClick={handleResendVerification}
+                disabled={resending}
+                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+              >
+                {resending ? "Sending..." : "Resend Verification Email"}
+              </button>
             </div>
           )}
         </div>
