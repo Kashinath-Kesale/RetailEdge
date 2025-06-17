@@ -104,7 +104,13 @@ const App = () => {
             />
 
             {/* Catch all route */}
-            <Route path="*" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="*" element={
+              <PrivateRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </PrivateRoute>
+            } />
           </Routes>
         </div>
       </AuthProvider>
