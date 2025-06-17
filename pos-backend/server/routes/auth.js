@@ -26,8 +26,6 @@ router.get("/verify-email", authController.verifyEmail);
 router.post("/resend-verification", authController.resendVerification);
 
 // Protected routes
-router.post("/change-password", protect, authController.changePassword);
-router.get("/profile", protect, authController.getProfile);
 router.put("/profile", protect, authController.updateProfile);
 router.put("/update-password", protect, authController.updatePassword);
 router.post("/forgot-password", protect, authController.forgotPassword);
