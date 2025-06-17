@@ -1,7 +1,7 @@
 // src/App.jsx
 import React from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -45,14 +45,13 @@ const App = () => {
 
             {/* Protected routes */}
             <Route
-              path="/"
               element={
                 <PrivateRoute>
                   <Layout />
                 </PrivateRoute>
               }
             >
-              <Route index element={<Dashboard />} />
+              <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="products" element={<Products />} />
               <Route path="sales" element={<Sales />} />
@@ -63,11 +62,7 @@ const App = () => {
             </Route>
 
             {/* Catch all route */}
-            <Route path="*" element={
-              <PrivateRoute>
-                <Layout />
-              </PrivateRoute>
-            } />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>
       </AuthProvider>

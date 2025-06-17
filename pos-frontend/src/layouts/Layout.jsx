@@ -23,8 +23,7 @@ const Layout = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { auth, logout } = useAuth();
-  const role = auth.user?.role;
+  const { auth, logout, userRole } = useAuth();
 
   useEffect(() => {
     const handleResize = () => {
@@ -58,17 +57,24 @@ const Layout = () => {
   const filteredMenuItems = menuItems.filter(item => {
     switch (item.path) {
       case "/products":
-        return role === "admin" || role === "viewer";
+        return userRole === "admin" || userRole === "viewer";
       case "/sales":
-        return role === "admin" || role === "cashier";
+        return userRole === "admin" || userRole === "cashier";
       case "/receipts":
-        return role === "admin" || role === "cashier" || role === "viewer";
+        return userRole === "admin" || userRole === "cashier" || userRole === "viewer";
       case "/payments":
-        return role === "admin" || role === "cashier";
+        return userRole === "admin" || userRole === "cashier";
       default:
         return true; // Dashboard is always visible
     }
   });
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    if (window.innerWidth < 768) {
+      setOpen(false);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -125,7 +131,7 @@ const Layout = () => {
             {filteredMenuItems.map((item) => (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNavigation(item.path)}
                 className={`group flex items-center ${
                   open
                     ? "w-full px-2 xs:px-3 sm:px-4 py-1.5 xs:py-2 sm:py-3 justify-start"
