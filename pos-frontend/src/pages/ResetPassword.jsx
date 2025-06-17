@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import { toast } from "react-toastify";
+import PasswordInput from "../components/PasswordInput";
 
 export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState("");
@@ -78,28 +79,26 @@ export default function ResetPassword() {
           Please enter your new password below.
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block mb-1 font-medium">New Password</label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
-              required
-              minLength={6}
-            />
-          </div>
-          <div>
-            <label className="block mb-1 font-medium">Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
-              required
-              minLength={6}
-            />
-          </div>
+          <PasswordInput
+            id="newPassword"
+            name="newPassword"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            label="New Password"
+            required
+            minLength={6}
+          />
+
+          <PasswordInput
+            id="confirmPassword"
+            name="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            label="Confirm Password"
+            required
+            minLength={6}
+          />
+
           <button
             type="submit"
             disabled={loading}

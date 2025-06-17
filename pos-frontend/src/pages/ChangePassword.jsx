@@ -4,6 +4,7 @@ import { FiLock, FiX } from "react-icons/fi";
 import axiosInstance from "../api/axiosInstance";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import PasswordInput from "../components/PasswordInput";
 
 const ChangePassword = () => {
   const { login } = useAuth();
@@ -34,7 +35,7 @@ const ChangePassword = () => {
         newPassword: formData.newPassword,
       });
 
-      if (response.data.success) {
+      if (response.data) {
         toast.success("Password updated successfully!");
         login(response.data.token, response.data.user);
         setFormData({
@@ -45,7 +46,8 @@ const ChangePassword = () => {
         navigate('/profile');
       }
     } catch (error) {
-      toast.error(error.response?.data?.msg || "Failed to update password");
+      console.error("Password update error:", error);
+      toast.error(error.response?.data?.message || "Failed to update password");
     }
   };
 
@@ -74,50 +76,32 @@ const ChangePassword = () => {
               Password Change
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  id="currentPassword"
-                  name="currentPassword"
-                  value={formData.currentPassword}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
-                  required
-                />
-              </div>
+              <PasswordInput
+                id="currentPassword"
+                name="currentPassword"
+                value={formData.currentPassword}
+                onChange={handleChange}
+                label="Current Password"
+                required
+              />
 
-              <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  name="newPassword"
-                  value={formData.newPassword}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
-                  required
-                />
-              </div>
+              <PasswordInput
+                id="newPassword"
+                name="newPassword"
+                value={formData.newPassword}
+                onChange={handleChange}
+                label="New Password"
+                required
+              />
 
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                  Confirm New Password
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
-                  required
-                />
-              </div>
+              <PasswordInput
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                label="Confirm New Password"
+                required
+              />
 
               <div className="flex justify-end space-x-2">
                 <button

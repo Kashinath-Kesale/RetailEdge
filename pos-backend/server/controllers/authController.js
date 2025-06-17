@@ -361,7 +361,27 @@ exports.updatePassword = async (req, res) => {
     user.password = newPassword;
     await user.save();
 
-    res.json({ message: "Password updated successfully" });
+    // Generate new token
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    // Prepare user data
+    const userData = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isVerified: Boolean(user.isVerified)
+    };
+
+    res.json({ 
+      message: "Password updated successfully",
+      token,
+      user: userData
+    });
   } catch (error) {
     console.error("Update password error:", error);
     res.status(500).json({ message: "Error updating password" });
