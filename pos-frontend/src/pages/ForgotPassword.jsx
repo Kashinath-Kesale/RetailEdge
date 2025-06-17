@@ -14,22 +14,15 @@ export default function ForgotPassword() {
 
     try {
       console.log("Sending forgot password request for email:", email);
-      const response = await axiosInstance.post("/api/auth/forgot-password", {
+      const response = await axiosInstance.post("/auth/forgot-password", {
         email,
       });
 
       console.log("Forgot password response:", response.data);
-      toast.success(response.data.msg);
+      toast.success(response.data.message || "Password reset link sent to your email");
       
-      // In development, redirect to reset password page with the token
-      if (response.data.resetToken) {
-        console.log("Redirecting to reset password page with token:", response.data.resetToken);
-        const resetUrl = `/reset-password?token=${response.data.resetToken}`;
-        console.log("Reset URL:", resetUrl);
-        navigate(resetUrl);
-      } else {
-        console.log("No reset token in response");
-      }
+      // Redirect to login page after successful request
+      navigate('/login');
     } catch (error) {
       console.error("Forgot password error:", error);
       const errorMessage = error.response?.data?.msg || "Failed to send reset link";

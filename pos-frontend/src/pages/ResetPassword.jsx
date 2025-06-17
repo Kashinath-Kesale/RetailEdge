@@ -29,17 +29,17 @@ export default function ResetPassword() {
 
     try {
       console.log("Submitting reset password request with token:", token);
-      const response = await axiosInstance.post("/api/auth/reset-password", {
+      const response = await axiosInstance.post("/auth/reset-password", {
         token,
         newPassword,
       });
 
       console.log("Reset password response:", response.data);
-      toast.success(response.data.msg);
+      toast.success(response.data.message || "Password reset successful");
       navigate("/login");
     } catch (error) {
       console.error("Reset password error:", error);
-      const errorMessage = error.response?.data?.msg || "Failed to reset password";
+      const errorMessage = error.response?.data?.message || "Failed to reset password";
       toast.error(errorMessage);
     } finally {
       setLoading(false);

@@ -352,7 +352,7 @@ exports.updatePassword = async (req, res) => {
     }
 
     // Verify current password
-    const isMatch = await user.comparePassword(currentPassword);
+    const isMatch = await user.matchPassword(currentPassword);
     if (!isMatch) {
       return res.status(401).json({ message: "Current password is incorrect" });
     }

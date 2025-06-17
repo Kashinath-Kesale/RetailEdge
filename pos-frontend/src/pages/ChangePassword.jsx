@@ -29,7 +29,7 @@ const ChangePassword = () => {
     }
 
     try {
-      const response = await axiosInstance.put("/api/auth/update-password", {
+      const response = await axiosInstance.put("/auth/update-password", {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       });

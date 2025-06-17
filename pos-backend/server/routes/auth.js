@@ -24,11 +24,11 @@ router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 router.get("/verify-email", authController.verifyEmail);
 router.post("/resend-verification", authController.resendVerification);
+router.post("/forgot-password", authController.forgotPassword);
+router.post("/reset-password", authController.resetPassword);
 
 // Protected routes
 router.put("/profile", protect, authController.updateProfile);
 router.put("/update-password", protect, authController.updatePassword);
-router.post("/forgot-password", protect, authController.forgotPassword);
-router.post("/reset-password", protect, authController.resetPassword);
 
 module.exports = router;
