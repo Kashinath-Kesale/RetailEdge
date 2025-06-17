@@ -79,10 +79,28 @@ exports.createSale = async (req, res) => {
 // Get all sales
 exports.getAllSales = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const total = await Sale.countDocuments();
+
+    // Get sales with pagination and selective population
     const sales = await Sale.find()
-      .populate('products.product')
-      .sort({ createdAt: -1 }); // Sort by newest first
-    res.status(200).json(sales);
+      .populate('products.product', 'name price') // Only populate necessary fields
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      sales,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     console.error('Get sales error:', error);
     res.status(500).json({ message: 'Error retrieving sales', error: error.message });

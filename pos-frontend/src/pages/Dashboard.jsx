@@ -21,11 +21,11 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         // Get total sales and revenue
-        const salesResponse = await axios.get("/api/sales");
-        const sales = Array.isArray(salesResponse.data) ? salesResponse.data : [];
+        const salesResponse = await axios.get("/api/sales?limit=1000"); // Get more sales for accurate totals
+        const sales = Array.isArray(salesResponse.data.sales) ? salesResponse.data.sales : [];
         
         // Get total products
-        const productsResponse = await axios.get("/api/products");
+        const productsResponse = await axios.get("/api/products?limit=1000"); // Get more products for accurate totals
         const products = productsResponse.data.products || [];
 
         // Calculate total revenue and sales count

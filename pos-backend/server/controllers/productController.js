@@ -20,8 +20,28 @@ exports.createProduct = async (req, res) => {
 // Get all products (any role)
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
-    res.json({ products });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const sort = req.query.sort || '-createdAt';
+
+    // Get total count for pagination
+    const total = await Product.countDocuments();
+
+    // Get products with pagination
+    const products = await Product.find()
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    res.json({ 
+      products,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
