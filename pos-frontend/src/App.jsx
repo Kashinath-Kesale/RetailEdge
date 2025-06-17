@@ -48,89 +48,24 @@ const App = () => {
               path="/"
               element={
                 <PrivateRoute>
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
+                  <Layout />
                 </PrivateRoute>
               }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/products"
-              element={
-                <PrivateRoute>
-                  <Layout>
-                    <Products />
-                  </Layout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/sales"
-              element={
-                <PrivateRoute>
-                  <Layout>
-                    <Sales />
-                  </Layout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/receipts"
-              element={
-                <PrivateRoute>
-                  <Layout>
-                    <Receipts />
-                  </Layout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/payments"
-              element={
-                <PrivateRoute>
-                  <Layout>
-                    <Payments />
-                  </Layout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute>
-                  <Layout>
-                    <Profile />
-                  </Layout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/change-password"
-              element={
-                <PrivateRoute>
-                  <Layout>
-                    <ChangePassword />
-                  </Layout>
-                </PrivateRoute>
-              }
-            />
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="products" element={<Products />} />
+              <Route path="sales" element={<Sales />} />
+              <Route path="receipts" element={<Receipts />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="change-password" element={<ChangePassword />} />
+            </Route>
 
             {/* Catch all route */}
             <Route path="*" element={
               <PrivateRoute>
-                <Layout>
-                  <Dashboard />
-                </Layout>
+                <Layout />
               </PrivateRoute>
             } />
           </Routes>
