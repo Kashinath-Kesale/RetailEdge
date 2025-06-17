@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosInstance from "../api/axiosInstance";
-import { FiMail, FiShoppingBag } from "react-icons/fi";
-import PasswordInput from "../components/PasswordInput";
+import { FiMail, FiLock, FiShoppingBag } from "react-icons/fi";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -98,30 +97,49 @@ const Login = () => {
           <form className="space-y-3" onSubmit={handleSubmit}>
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
+              <label htmlFor="email" className="block text-xs font-medium text-gray-700 mb-1">
+                Email address
               </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 text-sm"
-                required
-                autoComplete="email"
-              />
+              <div className="relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiMail className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-9 pr-3 text-sm border-gray-300 rounded-md transition duration-150 ease-in-out h-9"
+                  placeholder="you@example.com"
+                  required
+                  autoComplete="email"
+                />
+              </div>
             </div>
 
-            <PasswordInput
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              label="Password"
-              required
-              autoComplete="current-password"
-            />
+            {/* Password Field */}
+            <div>
+              <label htmlFor="password" className="block text-xs font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <div className="relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiLock className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-9 pr-3 text-sm border-gray-300 rounded-md transition duration-150 ease-in-out h-9"
+                  placeholder="••••••••"
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+            </div>
 
             {/* Submit Button */}
             <div>

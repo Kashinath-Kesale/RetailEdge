@@ -27,11 +27,6 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Ensure URL doesn't start with /api since it's in the baseURL
-    if (config.url?.startsWith('/api')) {
-      config.url = config.url.replace(/^\/api/, '');
-    }
-
     // Log request details
     console.log("📡 Request to:", config.url);
     console.log("🌐 Full URL:", `${config.baseURL}${config.url}`);
