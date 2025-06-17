@@ -51,8 +51,8 @@ const Signup = () => {
       const response = await axiosInstance.post("/auth/signup", signupData);
       console.log("Signup response:", response.data);
 
-      if (response.data.success) {
-        toast.success("Account created successfully! Please check your email for verification.");
+      if (response.status === 201) {
+        toast.success(response.data.message || "Account created successfully! Please check your email for verification.");
         navigate("/login");
       }
     } catch (error) {

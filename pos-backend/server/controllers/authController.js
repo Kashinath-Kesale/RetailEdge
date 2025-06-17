@@ -27,10 +27,22 @@ const cleanUrl = (url) => {
 exports.signup = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    console.log("Signup request received:", { name, email, role });
+    console.log("Signup request received:", { 
+      name, 
+      email, 
+      role,
+      headers: req.headers,
+      ip: req.ip
+    });
 
     // Validate required fields
     if (!name || !email || !password || !role) {
+      console.log("Missing required fields:", {
+        name: !name,
+        email: !email,
+        password: !password,
+        role: !role
+      });
       return res.status(400).json({
         message: 'Missing required fields',
         details: {
@@ -45,12 +57,14 @@ exports.signup = async (req, res) => {
     // Check if user exists
     const existingUser = await User.findOne({ email: email.trim().toLowerCase() });
     if (existingUser) {
+      console.log("User already exists:", email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
     // Validate role
     const allowedRoles = ['admin', 'cashier', 'viewer'];
     if (!allowedRoles.includes(role.toLowerCase())) {
+      console.log("Invalid role:", role);
       return res.status(400).json({ 
         message: 'Invalid role selected',
         details: 'Role must be one of: admin, cashier, viewer'
@@ -73,15 +87,22 @@ exports.signup = async (req, res) => {
     });
 
     await newUser.save();
-    console.log("User saved successfully:", newUser.email);
+    console.log("User saved successfully:", {
+      id: newUser._id,
+      email: newUser.email,
+      role: newUser.role
+    });
 
     try {
       // Send verification email
       const frontendUrl = cleanUrl(process.env.FRONTEND_URL);
       const verifyURL = `${frontendUrl}/verify-email?token=${verificationToken}`;
       
-      console.log("Sending verification email to:", newUser.email);
-      console.log("Verification URL:", verifyURL);
+      console.log("Preparing verification email:", {
+        to: newUser.email,
+        verifyURL,
+        frontendUrl
+      });
 
       // Create the email content with proper URL formatting
       const emailContent = `
@@ -102,23 +123,40 @@ exports.signup = async (req, res) => {
         </div>
       `;
 
+      console.log("Sending verification email...");
       await sendEmail({
         to: newUser.email,
         subject: "Verify your RetailEdge email",
         html: emailContent
       });
+      console.log("Verification email sent successfully");
 
       res.status(201).json({
         message: 'User registered successfully. Please check your email to verify.',
+        user: {
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role
+        }
       });
     } catch (emailError) {
-      console.error("Error sending verification email:", emailError);
+      console.error("Error sending verification email:", {
+        error: emailError.message,
+        stack: emailError.stack,
+        code: emailError.code
+      });
+      
       // Delete the user if email sending fails
       await User.findByIdAndDelete(newUser._id);
-      throw new Error("Failed to send verification email. Please try again.");
+      throw new Error(`Failed to send verification email: ${emailError.message}`);
     }
   } catch (err) {
-    console.error("Signup Error:", err);
+    console.error("Signup Error:", {
+      error: err.message,
+      stack: err.stack,
+      code: err.code
+    });
     res.status(500).json({
       message: err.message || 'Signup failed',
       error: process.env.NODE_ENV === 'development' ? err.stack : undefined
