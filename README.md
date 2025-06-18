@@ -4,7 +4,7 @@
 
 RetailEdge is a modern retail management platform that revolutionizes how businesses handle their operations. It offers a comprehensive solution built with modern technologies and best practices — providing tools for inventory management, sales processing, analytics, and customer management.  
 
-🌐 **Live Demo:** [retailedge-app.vercel.app](https://retailedge-app.vercel.app)
+🌐 **Live:** [retailedge-app.vercel.app](https://retailedge-app.vercel.app)
 
 ---
 
