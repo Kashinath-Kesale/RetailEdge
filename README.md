@@ -61,3 +61,6 @@ RetailEdge is a modern retail management platform that revolutionizes how busine
 - Profile management
 
 ---
+## 📜 License
+
+© 2025 RetailEdge. All rights reserved.
