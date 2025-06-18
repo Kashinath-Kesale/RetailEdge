@@ -1,4 +1,4 @@
-# 🚀 RetailEdge – Full-Stack Retail Management Platform
+# 🚀 RetailEdge – Modern Retail Management Platform
 
 [![RetailEdge Live](https://img.shields.io/badge/Live%20Demo-RetailEdge-green)](https://retailedge-app.vercel.app)
 
