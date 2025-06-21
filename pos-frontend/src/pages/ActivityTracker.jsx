@@ -72,12 +72,12 @@ const ActivityTracker = () => {
     } finally {
       setLoading(false);
     }
-  }, [loading]); // Only depend on loading state
+  }, [loading, hasPermission, userRole]); // Include all dependencies
 
   const handleRefresh = useCallback(() => {
     hasFetchedRef.current = false;
     fetchActivities();
-  }, [fetchActivities, hasPermission, userRole]);
+  }, [fetchActivities]); // Only depend on fetchActivities
 
   useEffect(() => {
     // Only fetch activities if user has permission and hasn't fetched yet
