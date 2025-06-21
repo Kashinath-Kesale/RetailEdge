@@ -12,6 +12,7 @@ import {
   FiUser,
   FiInfo,
   FiLogOut,
+  FiActivity,
 } from "react-icons/fi";
 import About from "../pages/About";
 import LowStockNotifier from "../components/LowStockNotifier";
@@ -49,6 +50,7 @@ const Layout = () => {
     { name: "Sales", path: "/sales", icon: <FiShoppingCart /> },
     { name: "Receipts", path: "/receipts", icon: <FiFileText /> },
     { name: "Payments", path: "/payments", icon: <FiDollarSign /> },
+    { name: "Activity Tracker", path: "/activity", icon: <FiActivity /> },
   ];
 
   // Filter menu items based on user role
@@ -62,6 +64,8 @@ const Layout = () => {
         return userRole === "admin" || userRole === "cashier" || userRole === "viewer";
       case "/payments":
         return userRole === "admin" || userRole === "cashier";
+      case "/activity":
+        return userRole === "admin"; // Only admin can see activity tracker
       default:
         return true; // Dashboard is always visible
     }

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
+const Activity = require('../models/Activity');
 const bcrypt = require('bcryptjs');
 const sendEmail = require('../utils/sendEmail');
 
@@ -21,6 +22,23 @@ const cleanUrl = (url) => {
   
   console.log('Cleaned URL:', cleaned);
   return cleaned;
+};
+
+// Helper function to log activity
+const logActivity = async (user, action, target, details, targetId = null, targetModel = null) => {
+  try {
+    await Activity.create({
+      user: user._id,
+      action,
+      target,
+      targetId,
+      targetModel,
+      details,
+      status: 'SUCCESS'
+    });
+  } catch (error) {
+    console.error('Failed to log activity:', error);
+  }
 };
 
 // Signup with email verification
@@ -274,6 +292,8 @@ exports.login = async (req, res) => {
       isVerified: userData.isVerified
     });
 
+    await logActivity(user, 'LOGIN', 'USER', `User logged in: ${user.email}`);
+
     res.status(200).json({
       message: "Login successful",
       token,
@@ -360,6 +380,9 @@ exports.updatePassword = async (req, res) => {
     // Update password
     user.password = newPassword;
     await user.save();
+
+    // Log activity
+    await logActivity(user, 'PASSWORD_CHANGE', 'USER', 'Password changed successfully');
 
     // Generate new token
     const token = jwt.sign(

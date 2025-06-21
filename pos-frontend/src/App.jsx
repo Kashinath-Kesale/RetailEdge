@@ -16,6 +16,7 @@ import Products from "./pages/Products";
 import Sales from "./pages/Sales";
 import Receipts from "./pages/Receipts";
 import Payments from "./pages/Payments";
+import ActivityTracker from "./pages/ActivityTracker";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
 import './App.css';
@@ -57,6 +58,7 @@ const App = () => {
               <Route path="sales" element={<Sales />} />
               <Route path="receipts" element={<Receipts />} />
               <Route path="payments" element={<Payments />} />
+              <Route path="activity" element={<ActivityTracker />} />
               <Route path="profile" element={<Profile />} />
               <Route path="change-password" element={<ChangePassword />} />
             </Route>

@@ -1,9 +1,27 @@
 const Sale = require('../models/Sale');
 const Product = require('../models/Product');
 const Payment = require('../models/Payment');
+const Activity = require('../models/Activity');
 const generateReceipt = require('../utils/generateReceipt');
 const path = require('path');
 const fs = require('fs');
+
+// Helper function to log activity
+const logActivity = async (user, action, target, details, targetId = null, targetModel = null) => {
+  try {
+    await Activity.create({
+      user: user._id,
+      action,
+      target,
+      targetId,
+      targetModel,
+      details,
+      status: 'SUCCESS'
+    });
+  } catch (error) {
+    console.error('Failed to log activity:', error);
+  }
+};
 
 // Create a new sale
 exports.createSale = async (req, res) => {
@@ -117,6 +135,10 @@ exports.createSale = async (req, res) => {
     }
 
     console.log('Sending success response');
+    
+    // Log activity
+    await logActivity(req.user, 'CREATE_SALE', 'SALE', `Created sale with ${saleProducts.length} products, total: ₹${totalAmount}`, sale._id, 'Sale');
+    
     res.status(201).json({ 
       success: true,
       message: 'Sale and payment recorded successfully', 
@@ -157,6 +179,9 @@ exports.getAllSales = async (req, res) => {
       }
       return saleObj;
     });
+    
+    // Log activity
+    await logActivity(req.user, 'VIEW_SALES', 'SALE', 'Viewed sales list');
     
     res.status(200).json(transformedSales);
   } catch (error) {

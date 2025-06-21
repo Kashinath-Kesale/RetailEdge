@@ -11,6 +11,7 @@ const paymentRoutes = require("./server/routes/payment");
 const productRoutes = require("./server/routes/productRoutes");
 const salesRoutes = require("./server/routes/sales");
 const receiptRoutes = require("./server/routes/receiptRoutes");
+const activityRoutes = require("./server/routes/activity");
 
 // Load environment variables
 dotenv.config();
@@ -118,6 +119,7 @@ app.use("/api/sales", salesRoutes);
 app.use("/api/receipts", receiptRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/activity", activityRoutes);
 
 // ✅ Error Handler
 app.use((err, req, res, next) => {
