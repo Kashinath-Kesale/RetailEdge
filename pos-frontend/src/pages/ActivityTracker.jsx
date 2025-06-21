@@ -13,10 +13,6 @@ const ActivityTracker = () => {
   const [loading, setLoading] = useState(false);
   const { userRole } = useAuth();
 
-  useEffect(() => {
-    fetchActivities();
-  }, [fetchActivities]);
-
   const fetchActivities = useCallback(async () => {
     setLoading(true);
     try {
@@ -33,6 +29,10 @@ const ActivityTracker = () => {
       setLoading(false);
     }
   }, [userRole]);
+
+  useEffect(() => {
+    fetchActivities();
+  }, [fetchActivities]);
 
   const testActivitySystem = async () => {
     try {

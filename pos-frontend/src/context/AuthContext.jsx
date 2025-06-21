@@ -25,6 +25,23 @@ export const AuthProvider = ({ children }) => {
     user: getUserFromStorage(),
   });
 
+  // Logout method — clears token and user from state and localStorage
+  const logout = useCallback(async () => {
+    try {
+      // Call backend logout endpoint for activity logging
+      await axiosInstance.post("/api/auth/logout");
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+      // Continue with logout even if API call fails
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setAuth({ token: "", user: null });
+      delete axiosInstance.defaults.headers.common["Authorization"];
+      toast.success("Logged out successfully");
+    }
+  }, []);
+
   // Verify token and update user data on mount
   useEffect(() => {
     const verifyToken = async () => {
@@ -57,23 +74,6 @@ export const AuthProvider = ({ children }) => {
     
     // Set default headers for all requests
     axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  }, []);
-
-  // Logout method — clears token and user from state and localStorage
-  const logout = useCallback(async () => {
-    try {
-      // Call backend logout endpoint for activity logging
-      await axiosInstance.post("/api/auth/logout");
-    } catch (error) {
-      console.error("Logout API call failed:", error);
-      // Continue with logout even if API call fails
-    } finally {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      setAuth({ token: "", user: null });
-      delete axiosInstance.defaults.headers.common["Authorization"];
-      toast.success("Logged out successfully");
-    }
   }, []);
 
   // Authenticated state
