@@ -24,6 +24,16 @@ import './App.css';
 const App = () => {
   console.log("🔍 App - Rendering App component");
   
+  // Add utility function for debugging (accessible from browser console)
+  if (typeof window !== 'undefined') {
+    window.clearAuthData = () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.reload();
+      console.log("Auth data cleared and page reloaded");
+    };
+  }
+  
   return (
     <ErrorBoundary>
       <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -66,8 +76,8 @@ const App = () => {
                 <Route path="change-password" element={<ChangePassword />} />
               </Route>
 
-              {/* Catch all route */}
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              {/* Catch all route - redirect to login for unauthenticated users */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </div>
         </AuthProvider>

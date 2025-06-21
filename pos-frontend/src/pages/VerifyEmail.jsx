@@ -20,9 +20,9 @@ const VerifyEmail = () => {
       console.log("Verification token:", token);
 
       if (!token) {
-        console.log("No verification token found");
-        setError("No verification token found");
-        setLoading(false);
+        console.log("No verification token found, redirecting to login");
+        toast.info("No verification token found. Please log in.");
+        navigate("/login");
         return;
       }
 
@@ -113,6 +113,14 @@ const VerifyEmail = () => {
             <div className="text-center">
               <FiAlertCircle className="h-12 w-12 text-red-500 mx-auto" />
               <p className="mt-4 text-sm text-gray-600">{error}</p>
+              
+              {/* Go to login button */}
+              <button
+                onClick={() => navigate("/login")}
+                className="mt-4 w-full flex justify-center py-1.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
+              >
+                Go to Login
+              </button>
               
               {/* Email input for resend */}
               <div className="mt-4">

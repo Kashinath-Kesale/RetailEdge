@@ -62,6 +62,22 @@ export const AuthProvider = ({ children }) => {
           const user = getUserFromStorage();
           if (user) {
             console.log("🔍 AuthContext - Setting auth state from localStorage:", { token: !!token, user });
+            
+            // Check if user is verified and has no verification token in URL
+            if (!user.isVerified) {
+              const urlParams = new URLSearchParams(window.location.search);
+              const verificationToken = urlParams.get('token');
+              
+              if (!verificationToken) {
+                console.log("🔍 AuthContext - User not verified and no token in URL, clearing auth state");
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                setAuth({ token: "", user: null });
+                delete axiosInstance.defaults.headers.common["Authorization"];
+                return;
+              }
+            }
+            
             setAuth({ token, user });
           }
         } catch (error) {

@@ -37,10 +37,24 @@ const PrivateRoute = ({ children }) => {
 
         // Check if user is verified
         if (!user.isVerified) {
-          console.log("🔍 PrivateRoute - User not verified, redirecting to verify-email");
-          setLoading(false);
-          toast.info("Please verify your email before proceeding");
-          return;
+          console.log("🔍 PrivateRoute - User not verified, checking for verification token");
+          
+          // Check if there's a verification token in the URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const verificationToken = urlParams.get('token');
+          
+          if (verificationToken) {
+            console.log("🔍 PrivateRoute - Verification token found in URL, allowing access to verify-email");
+            setLoading(false);
+            return;
+          } else {
+            console.log("🔍 PrivateRoute - No verification token found, redirecting to login");
+            // Clear invalid authentication state
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            setLoading(false);
+            return;
+          }
         }
 
         console.log("🔍 PrivateRoute - Auth check passed, allowing access");
