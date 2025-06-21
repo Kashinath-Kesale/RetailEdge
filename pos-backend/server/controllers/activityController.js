@@ -84,4 +84,37 @@ exports.deleteActivity = async (req, res) => {
     console.error('Delete activity error:', error);
     res.status(500).json({ message: 'Failed to delete activity', error: error.message });
   }
+};
+
+// Clean up orphaned activities (admin only)
+exports.cleanupOrphanedActivities = async (req, res) => {
+  try {
+    // Find activities that reference non-existent sales
+    const orphanedSaleActivities = await Activity.find({
+      targetModel: 'Sale',
+      targetId: { $exists: true, $ne: null }
+    });
+
+    let deletedCount = 0;
+    
+    for (const activity of orphanedSaleActivities) {
+      // Check if the referenced sale still exists
+      const Sale = require('../models/Sale');
+      const saleExists = await Sale.findById(activity.targetId);
+      
+      if (!saleExists) {
+        await Activity.findByIdAndDelete(activity._id);
+        deletedCount++;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Cleaned up ${deletedCount} orphaned activities`,
+      deletedCount
+    });
+  } catch (error) {
+    console.error('Cleanup orphaned activities error:', error);
+    res.status(500).json({ message: 'Failed to cleanup orphaned activities', error: error.message });
+  }
 }; 

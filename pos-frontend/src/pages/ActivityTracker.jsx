@@ -46,6 +46,7 @@ const ActivityTracker = () => {
             action === 'UPDATE_PRODUCT' ||
             action === 'DELETE_PRODUCT' ||
             action === 'CREATE_SALE' ||
+            action === 'DELETE_SALE' ||
             action === 'CREATE_USER' ||
             action === 'UPDATE_USER' ||
             // User Activities
@@ -71,7 +72,7 @@ const ActivityTracker = () => {
   const handleRefresh = useCallback(() => {
     hasFetchedRef.current = false;
     fetchActivities();
-  }, [fetchActivities]);
+  }, [fetchActivities, hasPermission, userRole]);
 
   useEffect(() => {
     // Only fetch activities if user has permission and hasn't fetched yet
@@ -92,6 +93,7 @@ const ActivityTracker = () => {
       case 'PASSWORD_CHANGE':
         return 'text-blue-600 bg-blue-100';
       case 'DELETE_PRODUCT':
+      case 'DELETE_SALE':
         return 'text-red-600 bg-red-100';
       default:
         return 'text-gray-600 bg-gray-100';
@@ -109,6 +111,7 @@ const ActivityTracker = () => {
       case 'PASSWORD_CHANGE':
         return '✏️';
       case 'DELETE_PRODUCT':
+      case 'DELETE_SALE':
         return '🗑️';
       default:
         return '📝';
@@ -121,6 +124,7 @@ const ActivityTracker = () => {
       'UPDATE_PRODUCT': 'Updated Product',
       'DELETE_PRODUCT': 'Deleted Product',
       'CREATE_SALE': 'Created Sale',
+      'DELETE_SALE': 'Deleted Sale',
       'CREATE_USER': 'Created User',
       'UPDATE_USER': 'Updated Profile',
       'PASSWORD_CHANGE': 'Changed Password'

@@ -16,6 +16,7 @@ const activitySchema = new mongoose.Schema(
         "UPDATE_PRODUCT", 
         "DELETE_PRODUCT",
         "CREATE_SALE",
+        "DELETE_SALE",
         "CREATE_USER",
         "UPDATE_USER",
         

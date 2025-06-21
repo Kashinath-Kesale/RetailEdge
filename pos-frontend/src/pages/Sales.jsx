@@ -16,8 +16,10 @@ import {
 } from "react-icons/fi";
 import Receipt from '../components/Receipt';
 import ReactDOM from 'react-dom/client';
+import { useAuth } from "../context/AuthContext";
 
 const Sales = () => {
+  const { userRole } = useAuth();
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -32,6 +34,7 @@ const Sales = () => {
   const [recentSales, setRecentSales] = useState([]);
   const [showReceipt, setShowReceipt] = useState(false);
   const [currentSale, setCurrentSale] = useState(null);
+  const [deletingSaleId, setDeletingSaleId] = useState(null);
   const searchRef = useRef(null);
 
   // Filter products based on search term
@@ -227,6 +230,29 @@ const Sales = () => {
         }}
       />
     );
+  };
+
+  const handleDeleteSale = async (saleId) => {
+    if (!window.confirm('Are you sure you want to delete this sale? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeletingSaleId(saleId);
+    try {
+      const response = await axiosInstance.delete(`/api/sales/${saleId}`);
+      
+      if (response.data.success) {
+        toast.success('Sale deleted successfully');
+        // Refresh sales list
+        await fetchSales();
+      }
+    } catch (error) {
+      console.error('Error deleting sale:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to delete sale';
+      toast.error(errorMessage);
+    } finally {
+      setDeletingSaleId(null);
+    }
   };
 
   return (
@@ -517,6 +543,17 @@ const Sales = () => {
                           >
                             View Receipt
                           </button>
+                          {userRole === 'admin' && (
+                            <button
+                              onClick={() => handleDeleteSale(sale._id)}
+                              disabled={deletingSaleId === sale._id}
+                              className={`text-red-600 hover:text-red-700 ml-2 ${
+                                deletingSaleId === sale._id ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                            >
+                              {deletingSaleId === sale._id ? 'Deleting...' : 'Delete'}
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

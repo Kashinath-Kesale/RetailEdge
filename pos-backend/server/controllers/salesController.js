@@ -201,6 +201,61 @@ exports.testSale = async (req, res) => {
     });
   } catch (error) {
     console.error('Test sale error:', error);
-    res.status(500).json({ message: 'Test failed', error: error.message });
+    res.status(500).json({ message: 'Test sale error', error: error.message });
+  }
+};
+
+// Delete a sale
+exports.deleteSale = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('Deleting sale with ID:', id);
+
+    // Find the sale first to get its details
+    const sale = await Sale.findById(id);
+    if (!sale) {
+      return res.status(404).json({ message: 'Sale not found' });
+    }
+
+    // Restore product quantities
+    for (const productItem of sale.products) {
+      const product = await Product.findById(productItem.product);
+      if (product) {
+        product.quantity += productItem.quantity;
+        await product.save();
+        console.log(`Restored ${productItem.quantity} units to product ${product.name}`);
+      }
+    }
+
+    // Delete related payments
+    await Payment.deleteMany({ sale: sale._id });
+    console.log('Related payments deleted');
+
+    // Delete related activities
+    await Activity.deleteMany({ 
+      targetId: sale._id, 
+      targetModel: 'Sale' 
+    });
+    console.log('Related activities deleted');
+
+    // Delete the sale
+    await Sale.findByIdAndDelete(sale._id);
+    console.log('Sale deleted successfully');
+
+    // Log the deletion activity
+    await logActivity(req.user, 'DELETE_SALE', 'SALE', `Deleted sale with ${sale.products.length} products, total: ₹${sale.totalAmount}`, sale._id, 'Sale');
+
+    res.status(200).json({ 
+      success: true,
+      message: 'Sale deleted successfully',
+      deletedSale: {
+        id: sale._id,
+        totalAmount: sale.totalAmount,
+        productsCount: sale.products.length
+      }
+    });
+  } catch (error) {
+    console.error('Delete sale error:', error);
+    res.status(500).json({ message: 'Error deleting sale', error: error.message });
   }
 };

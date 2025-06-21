@@ -16,4 +16,7 @@ router.post('/', activityController.createActivity);
 // Delete activity (admin only)
 router.delete('/:id', restrictTo('admin'), activityController.deleteActivity);
 
+// Clean up orphaned activities (admin only)
+router.post('/cleanup', restrictTo('admin'), activityController.cleanupOrphanedActivities);
+
 module.exports = router; 
