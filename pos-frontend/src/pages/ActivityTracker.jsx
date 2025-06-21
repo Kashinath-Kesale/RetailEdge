@@ -19,7 +19,7 @@ const ActivityTracker = () => {
       const response = await axiosInstance.get('/api/activity');
       
       if (response.data.success) {
-        // Filter to only show CRUD operations and user activities
+        // Filter to only show CRUD operations
         const filteredActivities = (response.data.activities || []).filter(activity => {
           const action = activity.action;
           return (
@@ -31,8 +31,6 @@ const ActivityTracker = () => {
             action === 'CREATE_USER' ||
             action === 'UPDATE_USER' ||
             // User Activities
-            action === 'LOGIN' ||
-            action === 'LOGOUT' ||
             action === 'PASSWORD_CHANGE'
           );
         });
@@ -63,10 +61,6 @@ const ActivityTracker = () => {
         return 'text-blue-600 bg-blue-100';
       case 'DELETE_PRODUCT':
         return 'text-red-600 bg-red-100';
-      case 'LOGIN':
-        return 'text-purple-600 bg-purple-100';
-      case 'LOGOUT':
-        return 'text-gray-600 bg-gray-100';
       default:
         return 'text-gray-600 bg-gray-100';
     }
@@ -84,10 +78,6 @@ const ActivityTracker = () => {
         return '✏️';
       case 'DELETE_PRODUCT':
         return '🗑️';
-      case 'LOGIN':
-        return '🔐';
-      case 'LOGOUT':
-        return '🚪';
       default:
         return '📝';
     }
@@ -101,8 +91,6 @@ const ActivityTracker = () => {
       'CREATE_SALE': 'Created Sale',
       'CREATE_USER': 'Created User',
       'UPDATE_USER': 'Updated Profile',
-      'LOGIN': 'User Login',
-      'LOGOUT': 'User Logout',
       'PASSWORD_CHANGE': 'Changed Password'
     };
     return actionMap[action] || action.replace(/_/g, ' ');
