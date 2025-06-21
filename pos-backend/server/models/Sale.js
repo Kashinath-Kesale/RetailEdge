@@ -32,6 +32,9 @@ const saleSchema = new mongoose.Schema(
     customerName: {
       type: String,
     },
+    customerEmail: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

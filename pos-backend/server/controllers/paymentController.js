@@ -36,7 +36,22 @@ exports.getAllPayments = async (req, res) => {
       })
       .sort({ createdAt: -1 }); // Sort by newest first
 
-    res.status(200).json(payments);
+    // Transform payments to include stock field in populated products
+    const transformedPayments = payments.map(payment => {
+      const paymentObj = payment.toObject();
+      if (paymentObj.sale && paymentObj.sale.products) {
+        paymentObj.sale.products = paymentObj.sale.products.map(product => ({
+          ...product,
+          product: product.product ? {
+            ...product.product,
+            stock: product.product.quantity
+          } : product.product
+        }));
+      }
+      return paymentObj;
+    });
+
+    res.status(200).json(transformedPayments);
   } catch (err) {
     console.error("Payment fetch error:", err);
     res.status(500).json({ message: "Failed to fetch payments", error: err.message });

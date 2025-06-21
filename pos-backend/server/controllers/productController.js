@@ -11,7 +11,14 @@ exports.createProduct = async (req, res) => {
 
     const product = new Product({ name, description, price, quantity, category });
     await product.save();
-    res.status(201).json({ message: 'Product created', product });
+    
+    // Transform product to include stock field for frontend compatibility
+    const transformedProduct = {
+      ...product.toObject(),
+      stock: product.quantity
+    };
+    
+    res.status(201).json({ message: 'Product created', product: transformedProduct });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -21,7 +28,14 @@ exports.createProduct = async (req, res) => {
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
-    res.json({ products });
+    
+    // Transform products to include stock field for frontend compatibility
+    const transformedProducts = products.map(product => ({
+      ...product.toObject(),
+      stock: product.quantity // Add stock field that maps to quantity
+    }));
+    
+    res.json({ products: transformedProducts });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -42,7 +56,14 @@ exports.updateProduct = async (req, res) => {
     if (category) product.category = category;
 
     await product.save();
-    res.json({ message: 'Product updated', product });
+    
+    // Transform product to include stock field for frontend compatibility
+    const transformedProduct = {
+      ...product.toObject(),
+      stock: product.quantity
+    };
+    
+    res.json({ message: 'Product updated', product: transformedProduct });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

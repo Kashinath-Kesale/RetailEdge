@@ -172,16 +172,20 @@ const Sales = () => {
       const saleData = {
         products: cart.map((item) => ({
           product: item.productId,
-          quantity: item.quantity,
-          priceAtSale: item.priceAtSale,
+          quantity: parseInt(item.quantity),
+          priceAtSale: parseFloat(item.priceAtSale),
         })),
-        totalAmount: total,
+        totalAmount: parseFloat(total),
         paymentMethod,
-        customerName: customerName || undefined,
-        customerEmail: customerEmail || undefined,
+        ...(customerName && { customerName }),
+        ...(customerEmail && { customerEmail }),
       };
 
+      console.log('Sending sale data:', saleData);
+      console.log('Cart items:', cart);
+
       const response = await axiosInstance.post("/api/sales", saleData);
+      console.log('Response received:', response.data);
 
       if (response.data.success) {
         toast.success("Sale completed successfully");
@@ -204,6 +208,8 @@ const Sales = () => {
       }
     } catch (err) {
       console.error("Error creating sale:", err);
+      console.error("Error response:", err.response);
+      console.error("Error response data:", err.response?.data);
       const errorMessage = err.response?.data?.message || "Sale failed";
       toast.error(errorMessage);
     } finally {

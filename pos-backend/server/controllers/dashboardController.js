@@ -58,7 +58,16 @@ exports.getTopProducts = async (req, res) => {
       { $unwind: "$product" }
     ]);
 
-    res.status(200).json({ topProducts: stats });
+    // Transform products to include stock field for frontend compatibility
+    const transformedStats = stats.map(stat => ({
+      ...stat,
+      product: {
+        ...stat.product,
+        stock: stat.product.quantity
+      }
+    }));
+
+    res.status(200).json({ topProducts: transformedStats });
   } catch (error) {
     console.error('Top products error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

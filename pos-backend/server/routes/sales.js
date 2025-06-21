@@ -3,6 +3,9 @@ const router = express.Router();
 const salesController = require('../controllers/salesController');
 const { protect } = require('../middleware/auth');
 
+// Test endpoint (no auth required)
+router.get('/test', salesController.testSale);
+
 // Create a new sale (protected route)
 router.post('/', protect, salesController.createSale);
 
