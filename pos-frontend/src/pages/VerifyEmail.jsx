@@ -8,7 +8,6 @@ const VerifyEmail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
-  const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState("");
   const [verified, setVerified] = useState(false);
@@ -27,7 +26,6 @@ const VerifyEmail = () => {
       }
 
       try {
-        setVerifying(true);
         console.log("Sending verification request");
         const response = await axiosInstance.get(`/api/auth/verify-email?token=${token}`);
         console.log("Verification response:", response.data);
@@ -55,7 +53,6 @@ const VerifyEmail = () => {
         toast.error(errorMessage);
       } finally {
         setLoading(false);
-        setVerifying(false);
       }
     };
 
