@@ -60,12 +60,20 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Logout method — clears token and user from state and localStorage
-  const logout = useCallback(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setAuth({ token: "", user: null });
-    delete axiosInstance.defaults.headers.common["Authorization"];
-    toast.success("Logged out successfully");
+  const logout = useCallback(async () => {
+    try {
+      // Call backend logout endpoint for activity logging
+      await axiosInstance.post("/api/auth/logout");
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+      // Continue with logout even if API call fails
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setAuth({ token: "", user: null });
+      delete axiosInstance.defaults.headers.common["Authorization"];
+      toast.success("Logged out successfully");
+    }
   }, []);
 
   // Authenticated state

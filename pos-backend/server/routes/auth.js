@@ -30,5 +30,7 @@ router.post("/reset-password", authController.resetPassword);
 // Protected routes
 router.put("/profile", protect, authController.updateProfile);
 router.put("/update-password", protect, authController.updatePassword);
+router.post("/logout", protect, authController.logout);
+router.post("/create-user", protect, authController.createUser);
 
 module.exports = router;

@@ -325,6 +325,10 @@ exports.updateProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Store old values for logging
+    const oldName = user.name;
+    const oldEmail = user.email;
+
     // Update fields
     if (name) user.name = name;
     if (email) {
@@ -338,6 +342,15 @@ exports.updateProfile = async (req, res) => {
     }
 
     await user.save();
+
+    // Log activity
+    const updateDetails = [];
+    if (name && name !== oldName) updateDetails.push(`name: ${oldName} → ${name}`);
+    if (email && email !== oldEmail) updateDetails.push(`email: ${oldEmail} → ${email}`);
+    
+    if (updateDetails.length > 0) {
+      await logActivity(user, 'UPDATE_USER', 'USER', `Updated profile: ${updateDetails.join(', ')}`);
+    }
 
     res.json({
       message: "Profile updated successfully",
@@ -552,6 +565,105 @@ exports.resendVerification = async (req, res) => {
     res.status(500).json({
       message: "Failed to resend verification email",
       error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+};
+
+// Logout controller
+exports.logout = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    
+    if (user) {
+      // Log activity
+      await logActivity(user, 'LOGOUT', 'USER', `User logged out: ${user.email}`);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully"
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ message: "Error during logout" });
+  }
+};
+
+// Admin create user controller
+exports.createUser = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+    
+    // Check if current user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: "Access denied. Admin privileges required." });
+    }
+
+    console.log("Admin creating user:", { name, email, role });
+
+    // Validate required fields
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({
+        message: 'Missing required fields',
+        details: {
+          name: !name,
+          email: !email,
+          password: !password,
+          role: !role
+        }
+      });
+    }
+
+    // Check if user exists
+    const existingUser = await User.findOne({ email: email.trim().toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Validate role
+    const allowedRoles = ['admin', 'cashier', 'viewer'];
+    if (!allowedRoles.includes(role.toLowerCase())) {
+      return res.status(400).json({ 
+        message: 'Invalid role selected',
+        details: 'Role must be one of: admin, cashier, viewer'
+      });
+    }
+
+    // Create user (skip email verification for admin-created users)
+    const newUser = new User({
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      password,
+      role: role.trim().toLowerCase(),
+      isVerified: true // Admin-created users are automatically verified
+    });
+
+    await newUser.save();
+    console.log("Admin created user successfully:", {
+      id: newUser._id,
+      email: newUser.email,
+      role: newUser.role
+    });
+
+    // Log activity
+    await logActivity(req.user, 'CREATE_USER', 'USER', `Admin created user: ${newUser.email} (${newUser.role})`, newUser._id, 'User');
+
+    res.status(201).json({
+      message: 'User created successfully by admin',
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        isVerified: newUser.isVerified
+      }
+    });
+  } catch (err) {
+    console.error("Admin create user error:", err);
+    res.status(500).json({
+      message: err.message || 'Failed to create user',
+      error: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   }
 }; 
