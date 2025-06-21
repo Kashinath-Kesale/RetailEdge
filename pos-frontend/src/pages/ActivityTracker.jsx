@@ -3,15 +3,8 @@ import axiosInstance from '../api/axiosInstance';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import { 
-  FiSearch, 
-  FiFilter, 
-  FiEye, 
-  FiTrash2, 
-  FiCalendar,
-  FiUser,
   FiActivity,
-  FiRefreshCw,
-  FiDownload
+  FiRefreshCw
 } from 'react-icons/fi';
 
 const ActivityTracker = () => {
