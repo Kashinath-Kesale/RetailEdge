@@ -86,6 +86,15 @@ export const AuthProvider = ({ children }) => {
     console.log("🔍 AuthContext - Auth state updated:", { token: !!token, user });
   }, []);
 
+  // Update user method — updates only user data without changing token
+  const updateUser = useCallback((userData) => {
+    console.log("🔍 AuthContext - Update user called with:", userData);
+    const updatedUser = { ...auth.user, ...userData };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setAuth(prev => ({ ...prev, user: updatedUser }));
+    console.log("🔍 AuthContext - User data updated:", updatedUser);
+  }, [auth.user]);
+
   // Authenticated state
   const isAuthenticated = !!auth.token && !!auth.user;
   const isVerified = auth.user?.isVerified === true;
@@ -107,7 +116,8 @@ export const AuthProvider = ({ children }) => {
         logout, 
         isAuthenticated,
         isVerified,
-        userRole
+        userRole,
+        updateUser
       }}
     >
       {children}

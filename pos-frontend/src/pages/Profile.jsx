@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  const { auth, login } = useAuth();
+  const { auth, updateUser } = useAuth();
   const { user } = auth;
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
@@ -26,12 +26,14 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.put("/api/auth/profile", formData);
-      login(auth.token, response.data.user);
+      const response = await axiosInstance.put("/api/auth/profile", {
+        name: formData.name
+      });
+      updateUser(response.data.user);
       toast.success("Profile updated successfully!");
       setIsEditing(false);
     } catch (error) {
-      toast.error(error.response?.data?.msg || "Failed to update profile");
+      toast.error(error.response?.data?.message || "Failed to update profile");
     }
   };
 
@@ -62,6 +64,9 @@ const Profile = () => {
             <h3 className="text-sm font-medium text-gray-900 mb-3">Personal Information</h3>
             <form onSubmit={handleSubmit}>
               <div className="relative">
+                <label htmlFor="name" className="block text-xs font-medium text-gray-700 mb-1">
+                  Name
+                </label>
                 <input
                   type="text"
                   id="name"
@@ -76,12 +81,12 @@ const Profile = () => {
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2 top-8 text-gray-400 hover:text-gray-600"
                   >
                     <FiEdit2 size={16} />
                   </button>
                 ) : (
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+                  <div className="absolute right-2 top-8 flex gap-2">
                     <button
                       type="submit"
                       className="text-blue-600 hover:text-blue-700"
@@ -106,6 +111,7 @@ const Profile = () => {
             <h3 className="text-sm font-medium text-gray-900 mb-3">Contact Information</h3>
             <div className="px-3 py-2 bg-gray-50 rounded-md border border-gray-200">
               <span className="text-sm text-gray-900">{user.email}</span>
+              <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
             </div>
           </div>
 

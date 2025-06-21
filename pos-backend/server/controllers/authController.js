@@ -311,12 +311,12 @@ exports.login = async (req, res) => {
 // Update profile controller
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name } = req.body;
     const userId = req.user.userId;
 
     // Validate required fields
-    if (!name && !email) {
-      return res.status(400).json({ message: "At least one field is required to update" });
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
     }
 
     // Find user
@@ -327,29 +327,15 @@ exports.updateProfile = async (req, res) => {
 
     // Store old values for logging
     const oldName = user.name;
-    const oldEmail = user.email;
 
-    // Update fields
-    if (name) user.name = name;
-    if (email) {
-      // Check if new email is already taken
-      const existingUser = await User.findOne({ email, _id: { $ne: userId } });
-      if (existingUser) {
-        return res.status(400).json({ message: "Email already in use" });
-      }
-      user.email = email;
-      user.isVerified = false; // Require re-verification for email change
-    }
+    // Update name only
+    user.name = name;
 
     await user.save();
 
     // Log activity
-    const updateDetails = [];
-    if (name && name !== oldName) updateDetails.push(`name: ${oldName} → ${name}`);
-    if (email && email !== oldEmail) updateDetails.push(`email: ${oldEmail} → ${email}`);
-    
-    if (updateDetails.length > 0) {
-      await logActivity(user, 'UPDATE_USER', 'USER', `Updated profile: ${updateDetails.join(', ')}`);
+    if (name !== oldName) {
+      await logActivity(user, 'UPDATE_USER', 'USER', `Updated profile: name: ${oldName} → ${name}`);
     }
 
     res.json({
@@ -359,6 +345,7 @@ exports.updateProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        isVerified: Boolean(user.isVerified)
       },
     });
   } catch (error) {
