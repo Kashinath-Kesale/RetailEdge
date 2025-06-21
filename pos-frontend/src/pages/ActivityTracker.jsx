@@ -14,6 +14,8 @@ const ActivityTracker = () => {
   const { userRole } = useAuth();
 
   const fetchActivities = useCallback(async () => {
+    if (loading) return; // Prevent duplicate requests
+    
     setLoading(true);
     try {
       const response = await axiosInstance.get('/api/activity');
@@ -43,7 +45,7 @@ const ActivityTracker = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loading]);
 
   useEffect(() => {
     fetchActivities();

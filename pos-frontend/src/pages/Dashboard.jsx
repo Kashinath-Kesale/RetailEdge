@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "../api/axiosInstance";
 import { FiDollarSign, FiShoppingBag, FiUsers, FiTrendingUp, FiTrendingDown } from "react-icons/fi";
 import moment from "moment";
@@ -18,96 +18,98 @@ export default function Dashboard() {
     paymentStats: [],
     topProducts: []
   });
+  const [loading, setLoading] = useState(true);
+
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch all data concurrently using Promise.all
+      const [summaryResponse, paymentStatsResponse, topProductsResponse, salesResponse] = await Promise.all([
+        axios.get("/api/dashboard/summary"),
+        axios.get("/api/dashboard/payment-methods"),
+        axios.get("/api/dashboard/top-products"),
+        axios.get("/api/sales")
+      ]);
+
+      const summary = summaryResponse.data;
+      const paymentStats = paymentStatsResponse.data.paymentStats;
+      const topProducts = topProductsResponse.data.topProducts;
+      const sales = Array.isArray(salesResponse.data) ? salesResponse.data : [];
+
+      // Calculate revenue growth with proper month handling
+      const currentMonthStart = moment().startOf('month');
+      const previousMonthStart = moment().subtract(1, 'month').startOf('month');
+      const previousMonthEnd = moment().subtract(1, 'month').endOf('month');
+
+      // Get current month's revenue
+      const currentMonthSales = sales.filter(sale => 
+        moment(sale.createdAt).isSameOrAfter(currentMonthStart)
+      );
+      const currentMonthRevenue = currentMonthSales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
+
+      // Get previous month's revenue
+      const previousMonthSales = sales.filter(sale => 
+        moment(sale.createdAt).isBetween(previousMonthStart, previousMonthEnd, 'day', '[]')
+      );
+      const previousMonthRevenue = previousMonthSales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
+
+      // Calculate growth percentage with better handling of edge cases
+      let revenueGrowth = 0;
+      if (previousMonthRevenue === 0) {
+        if (currentMonthRevenue > 0) {
+          revenueGrowth = 100; // New revenue
+        } else {
+          revenueGrowth = 0;
+        }
+      } else {
+        revenueGrowth = ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
+      }
+
+      // Calculate 6-month trend
+      const trend = Array.from({ length: 6 }, (_, i) => {
+        const monthStart = moment().subtract(i, 'month').startOf('month');
+        const monthEnd = moment().subtract(i, 'month').endOf('month');
+        const monthSales = sales.filter(sale => 
+          moment(sale.createdAt).isBetween(monthStart, monthEnd, 'day', '[]')
+        );
+        return {
+          month: monthStart.format('MMM YYYY'),
+          revenue: monthSales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0)
+        };
+      }).reverse();
+
+      setDashboardData({
+        totalRevenue: summary.totalRevenue || 0,
+        totalSales: summary.totalSales || 0,
+        totalProducts: summary.totalProducts || 0,
+        revenueGrowth: parseFloat(revenueGrowth.toFixed(2)),
+        revenueData: {
+          currentMonth: currentMonthRevenue,
+          previousMonth: previousMonthRevenue,
+          trend
+        },
+        paymentStats,
+        topProducts
+      });
+    } catch (error) {
+      console.error("Dashboard fetch error:", error);
+      toast.error("Failed to fetch dashboard data. Please try again later.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Get dashboard summary data
-        const summaryResponse = await axios.get("/api/dashboard/summary");
-        const summary = summaryResponse.data;
-
-        // Get payment methods stats
-        const paymentStatsResponse = await axios.get("/api/dashboard/payment-methods");
-        const paymentStats = paymentStatsResponse.data.paymentStats;
-
-        // Get top products
-        const topProductsResponse = await axios.get("/api/dashboard/top-products");
-        const topProducts = topProductsResponse.data.topProducts;
-
-        // Get sales data for trend analysis
-        const salesResponse = await axios.get("/api/sales");
-        const sales = Array.isArray(salesResponse.data) ? salesResponse.data : [];
-
-        // Calculate revenue growth with proper month handling
-        const currentMonthStart = moment().startOf('month');
-        const previousMonthStart = moment().subtract(1, 'month').startOf('month');
-        const previousMonthEnd = moment().subtract(1, 'month').endOf('month');
-
-        // Get current month's revenue
-        const currentMonthSales = sales.filter(sale => 
-          moment(sale.createdAt).isSameOrAfter(currentMonthStart)
-        );
-        const currentMonthRevenue = currentMonthSales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
-
-        // Get previous month's revenue
-        const previousMonthSales = sales.filter(sale => 
-          moment(sale.createdAt).isBetween(previousMonthStart, previousMonthEnd, 'day', '[]')
-        );
-        const previousMonthRevenue = previousMonthSales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
-
-        // Calculate growth percentage with better handling of edge cases
-        let revenueGrowth = 0;
-        if (previousMonthRevenue === 0) {
-          if (currentMonthRevenue > 0) {
-            revenueGrowth = 100; // New revenue
-          } else {
-            revenueGrowth = 0;
-          }
-        } else {
-          revenueGrowth = ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
-        }
-
-        // Calculate 6-month trend
-        const trend = Array.from({ length: 6 }, (_, i) => {
-          const monthStart = moment().subtract(i, 'month').startOf('month');
-          const monthEnd = moment().subtract(i, 'month').endOf('month');
-          const monthSales = sales.filter(sale => 
-            moment(sale.createdAt).isBetween(monthStart, monthEnd, 'day', '[]')
-          );
-          return {
-            month: monthStart.format('MMM YYYY'),
-            revenue: monthSales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0)
-          };
-        }).reverse();
-
-        setDashboardData({
-          totalRevenue: summary.totalRevenue || 0,
-          totalSales: summary.totalSales || 0,
-          totalProducts: summary.totalProducts || 0,
-          revenueGrowth: parseFloat(revenueGrowth.toFixed(2)),
-          revenueData: {
-            currentMonth: currentMonthRevenue,
-            previousMonth: previousMonthRevenue,
-            trend
-          },
-          paymentStats,
-          topProducts
-        });
-      } catch (error) {
-        console.error("Dashboard fetch error:", error);
-        toast.error("Failed to fetch dashboard data. Please try again later.", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-      }
-    };
-
-    fetchData();
-  }, []);
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const cards = [
     {
@@ -166,130 +168,141 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
         <p className="mt-2 text-sm text-gray-600">Welcome to your retail management dashboard</p>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-          {cards.map((card, index) => (
-            <div
-              key={index}
-              className={`bg-white rounded-lg shadow-sm p-6 border border-gray-100 transition-all duration-200 transform hover:-translate-y-1`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${card.textColor} mb-1`}>{card.title}</p>
-                  <div className={card.textColor}>
-                    {card.value}
-                    {card.subtitle}
+        {loading ? (
+          <div className="mt-8 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading dashboard data...</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+              {cards.map((card, index) => (
+                <div
+                  key={index}
+                  className={`bg-white rounded-lg shadow-sm p-6 border border-gray-100 transition-all duration-200 transform hover:-translate-y-1`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-sm font-medium ${card.textColor} mb-1`}>{card.title}</p>
+                      <div className={card.textColor}>
+                        {card.value}
+                        {card.subtitle}
+                      </div>
+                    </div>
+                    <div className={`text-3xl ${card.iconColor} p-3 rounded-full bg-white shadow-sm`}>{card.icon}</div>
                   </div>
                 </div>
-                <div className={`text-3xl ${card.iconColor} p-3 rounded-full bg-white shadow-sm`}>{card.icon}</div>
+              ))}
+            </div>
+
+            {/* Revenue Trend Section */}
+            <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Revenue Trend</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                {dashboardData.revenueData.trend.map((month, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600">{month.month}</p>
+                    <p className="text-lg font-semibold text-gray-800 mt-1">
+                      ₹{month.revenue.toLocaleString()}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Revenue Trend Section */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Revenue Trend</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {dashboardData.revenueData.trend.map((month, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600">{month.month}</p>
-                <p className="text-lg font-semibold text-gray-800 mt-1">
-                  ₹{month.revenue.toLocaleString()}
-                </p>
+            {/* Revenue Growth Card */}
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                  Revenue Growth
+                </h3>
+                <span className={`text-sm px-2 py-1 rounded-full ${
+                  dashboardData.revenueGrowth >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {dashboardData.revenueGrowth > 0 ? '+' : ''} {dashboardData.revenueGrowth.toFixed(1)}%
+                </span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Revenue Growth Card */}
-        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-              Revenue Growth
-            </h3>
-            <span className={`text-sm px-2 py-1 rounded-full ${
-              dashboardData.revenueGrowth >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-            }`}>
-              {dashboardData.revenueGrowth > 0 ? '+' : ''} {dashboardData.revenueGrowth.toFixed(1)}%
-            </span>
-          </div>
-          <div className="flex items-baseline">
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900">
-              {dashboardData.revenueGrowth > 0 ? 'Revenue increased' : 'Revenue decreased'}
-            </p>
-            <span className="ml-2 text-sm text-gray-500">
-              vs last month
-            </span>
-          </div>
-          <div className="mt-2 text-sm text-gray-500">
-            {dashboardData.revenueGrowth > 0 ? (
-              <>
-                Current: ₹{dashboardData.revenueData.currentMonth.toLocaleString()}
-                <br />
-                Previous: ₹{dashboardData.revenueData.previousMonth.toLocaleString()}
-              </>
-            ) : (
-              'No sales data available'
-            )}
-          </div>
-        </div>
-
-        {/* Payment Methods Section */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Payment Methods</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {dashboardData.paymentStats.map((stat, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 capitalize">{stat._id || 'Unknown'}</p>
-                <p className="text-lg font-semibold text-gray-800 mt-1">
-                  {stat.count} transactions
+              <div className="flex items-baseline">
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  {dashboardData.revenueGrowth > 0 ? 'Revenue increased' : 'Revenue decreased'}
                 </p>
+                <span className="ml-2 text-sm text-gray-500">
+                  vs last month
+                </span>
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="mt-2 text-sm text-gray-500">
+                {dashboardData.revenueGrowth > 0 ? (
+                  <>
+                    Current: ₹{dashboardData.revenueData.currentMonth.toLocaleString()}
+                    <br />
+                    Previous: ₹{dashboardData.revenueData.previousMonth.toLocaleString()}
+                  </>
+                ) : (
+                  'No sales data available'
+                )}
+              </div>
+            </div>
 
-        {/* Top Products Section */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Top Selling Products</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Units Sold
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {dashboardData.topProducts.map((product, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {product.product?.name || 'Unknown Product'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {product.product?.category || 'Uncategorized'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{product.totalSold}</div>
-                    </td>
-                  </tr>
+            {/* Payment Methods Section */}
+            <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Payment Methods</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {dashboardData.paymentStats.map((stat, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 capitalize">{stat._id || 'Unknown'}</p>
+                    <p className="text-lg font-semibold text-gray-800 mt-1">
+                      {stat.count} transactions
+                    </p>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </div>
+            </div>
+
+            {/* Top Products Section */}
+            <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Top Selling Products</h2>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Product
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Category
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Units Sold
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {dashboardData.topProducts.map((product, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {product.product?.name || 'Unknown Product'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500">
+                            {product.product?.category || 'Uncategorized'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{product.totalSold}</div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

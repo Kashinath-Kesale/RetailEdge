@@ -1,69 +1,46 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import axiosInstance from "../api/axiosInstance";
 import { FiLoader } from "react-icons/fi";
+import { useAuth } from "../context/AuthContext";
+import config from "../config/environment";
 
 const PrivateRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
+  const { isAuthenticated, isVerified } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("token");
-        console.log("Checking authentication...", { 
-          hasToken: !!token,
-          path: location.pathname 
-        });
-
+        
         if (!token) {
-          console.log("No token found, redirecting to login");
-          setIsAuthenticated(false);
           setLoading(false);
           return;
         }
 
-        // Set default headers for all requests
-        axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
         // Get user data from localStorage
         const user = JSON.parse(localStorage.getItem("user") || "{}");
-        console.log("User data from localStorage:", {
-          hasUser: !!user,
-          isVerified: user.isVerified,
-          role: user.role,
-        });
 
-        // In development mode, skip verification
-        if (process.env.NODE_ENV === "development") {
-          console.log("Development mode: Skipping verification");
-          setIsAuthenticated(true);
-          setIsVerified(true);
+        // Skip verification in development mode
+        if (!config.ENABLE_VERIFICATION) {
           setLoading(false);
           return;
         }
 
         // Check if user is verified
         if (!user.isVerified) {
-          console.log("User not verified, redirecting to verify-email");
-          setIsAuthenticated(true);
-          setIsVerified(false);
           setLoading(false);
           toast.info("Please verify your email before proceeding");
           return;
         }
 
-        setIsAuthenticated(true);
-        setIsVerified(true);
         setLoading(false);
       } catch (error) {
         console.error("Auth check error:", error);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        setIsAuthenticated(false);
         setLoading(false);
         toast.error("Session expired. Please login again.");
       }
