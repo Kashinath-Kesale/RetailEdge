@@ -11,37 +11,18 @@ const activitySchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
-        // Product operations
+        // CRUD Operations
         "CREATE_PRODUCT",
         "UPDATE_PRODUCT", 
         "DELETE_PRODUCT",
-        "VIEW_PRODUCTS",
-        
-        // Sale operations
         "CREATE_SALE",
-        "VIEW_SALES",
-        "VIEW_RECEIPT",
-        
-        // Payment operations
-        "CREATE_PAYMENT",
-        "VIEW_PAYMENTS",
-        "DELETE_PAYMENT",
-        
-        // User operations
         "CREATE_USER",
         "UPDATE_USER",
-        "DELETE_USER",
+        
+        // User Activities
         "LOGIN",
         "LOGOUT",
-        "PASSWORD_CHANGE",
-        
-        // Dashboard operations
-        "VIEW_DASHBOARD",
-        "VIEW_REPORTS",
-        
-        // System operations
-        "SYSTEM_LOGIN",
-        "SYSTEM_LOGOUT"
+        "PASSWORD_CHANGE"
       ],
     },
     target: {
@@ -50,9 +31,7 @@ const activitySchema = new mongoose.Schema(
       enum: [
         "PRODUCT",
         "SALE", 
-        "PAYMENT",
         "USER",
-        "DASHBOARD",
         "SYSTEM"
       ],
     },
@@ -62,7 +41,7 @@ const activitySchema = new mongoose.Schema(
     },
     targetModel: {
       type: String,
-      enum: ["Product", "Sale", "Payment", "User"],
+      enum: ["Product", "Sale", "User"],
     },
     details: {
       type: String,

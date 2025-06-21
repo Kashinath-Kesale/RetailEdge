@@ -16,11 +16,28 @@ const ActivityTracker = () => {
   const fetchActivities = useCallback(async () => {
     setLoading(true);
     try {
-      console.log('Fetching activities with user role:', userRole);
       const response = await axiosInstance.get('/api/activity');
       
       if (response.data.success) {
-        setActivities(response.data.activities || []);
+        // Filter to only show CRUD operations and user activities
+        const filteredActivities = (response.data.activities || []).filter(activity => {
+          const action = activity.action;
+          return (
+            // CRUD Operations
+            action === 'CREATE_PRODUCT' ||
+            action === 'UPDATE_PRODUCT' ||
+            action === 'DELETE_PRODUCT' ||
+            action === 'CREATE_SALE' ||
+            action === 'CREATE_USER' ||
+            action === 'UPDATE_USER' ||
+            // User Activities
+            action === 'LOGIN' ||
+            action === 'LOGOUT' ||
+            action === 'PASSWORD_CHANGE'
+          );
+        });
+        
+        setActivities(filteredActivities);
       }
     } catch (error) {
       console.error('Error fetching activities:', error);
@@ -28,22 +45,67 @@ const ActivityTracker = () => {
     } finally {
       setLoading(false);
     }
-  }, [userRole]);
+  }, []);
 
   useEffect(() => {
     fetchActivities();
   }, [fetchActivities]);
 
-  const testActivitySystem = async () => {
-    try {
-      console.log('Testing activity system...');
-      const response = await axiosInstance.get('/api/activity/test');
-      console.log('Test response:', response.data);
-      toast.success('Activity system test successful');
-    } catch (error) {
-      console.error('Activity system test failed:', error);
-      toast.error('Activity system test failed');
+  const getActionColor = (action) => {
+    switch (action) {
+      case 'CREATE_PRODUCT':
+      case 'CREATE_SALE':
+      case 'CREATE_USER':
+        return 'text-green-600 bg-green-100';
+      case 'UPDATE_PRODUCT':
+      case 'UPDATE_USER':
+      case 'PASSWORD_CHANGE':
+        return 'text-blue-600 bg-blue-100';
+      case 'DELETE_PRODUCT':
+        return 'text-red-600 bg-red-100';
+      case 'LOGIN':
+        return 'text-purple-600 bg-purple-100';
+      case 'LOGOUT':
+        return 'text-gray-600 bg-gray-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
     }
+  };
+
+  const getActionIcon = (action) => {
+    switch (action) {
+      case 'CREATE_PRODUCT':
+      case 'CREATE_SALE':
+      case 'CREATE_USER':
+        return '➕';
+      case 'UPDATE_PRODUCT':
+      case 'UPDATE_USER':
+      case 'PASSWORD_CHANGE':
+        return '✏️';
+      case 'DELETE_PRODUCT':
+        return '🗑️';
+      case 'LOGIN':
+        return '🔐';
+      case 'LOGOUT':
+        return '🚪';
+      default:
+        return '📝';
+    }
+  };
+
+  const formatAction = (action) => {
+    const actionMap = {
+      'CREATE_PRODUCT': 'Created Product',
+      'UPDATE_PRODUCT': 'Updated Product',
+      'DELETE_PRODUCT': 'Deleted Product',
+      'CREATE_SALE': 'Created Sale',
+      'CREATE_USER': 'Created User',
+      'UPDATE_USER': 'Updated Profile',
+      'LOGIN': 'User Login',
+      'LOGOUT': 'User Logout',
+      'PASSWORD_CHANGE': 'Changed Password'
+    };
+    return actionMap[action] || action.replace(/_/g, ' ');
   };
 
   return (
@@ -56,27 +118,19 @@ const ActivityTracker = () => {
               Activity Tracker
             </h2>
             <p className="text-xs xs:text-sm text-gray-600 mt-1">
-              Monitor all system activities and user actions
+              Monitor CRUD operations and user activities
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Current user role: <span className="font-medium">{userRole}</span>
             </p>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={testActivitySystem}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Test System
-            </button>
-            <button
-              onClick={fetchActivities}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <FiRefreshCw size={16} />
-              Refresh
-            </button>
-          </div>
+          <button
+            onClick={fetchActivities}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <FiRefreshCw size={16} />
+            Refresh
+          </button>
         </div>
 
         {/* Activities Table */}
@@ -109,9 +163,6 @@ const ActivityTracker = () => {
                       Action
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Target
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Details
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -132,12 +183,12 @@ const ActivityTracker = () => {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm">
-                        <span className="font-medium">{activity.action?.replace(/_/g, ' ') || 'Unknown'}</span>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-600">
-                          {activity.target || 'Unknown'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{getActionIcon(activity.action)}</span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getActionColor(activity.action)}`}>
+                            {formatAction(activity.action)}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700 max-w-xs truncate">
                         {activity.details || 'No details'}
