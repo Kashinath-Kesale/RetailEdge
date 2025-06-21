@@ -25,6 +25,13 @@ export const AuthProvider = ({ children }) => {
     user: getUserFromStorage(),
   });
 
+  console.log("🔍 AuthContext - Initial state:", {
+    token: !!auth.token,
+    user: auth.user,
+    isAuthenticated: !!auth.token && !!auth.user,
+    isVerified: auth.user?.isVerified
+  });
+
   // Logout method — clears token and user from state and localStorage
   const logout = useCallback(async () => {
     try {
@@ -54,6 +61,7 @@ export const AuthProvider = ({ children }) => {
           // Get user data from localStorage
           const user = getUserFromStorage();
           if (user) {
+            console.log("🔍 AuthContext - Setting auth state from localStorage:", { token: !!token, user });
             setAuth({ token, user });
           }
         } catch (error) {
@@ -68,18 +76,28 @@ export const AuthProvider = ({ children }) => {
 
   // Login method — saves token and user to both state and localStorage
   const login = useCallback((token, user) => {
+    console.log("🔍 AuthContext - Login called with:", { token: !!token, user });
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
     setAuth({ token, user });
     
     // Set default headers for all requests
     axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    console.log("🔍 AuthContext - Auth state updated:", { token: !!token, user });
   }, []);
 
   // Authenticated state
   const isAuthenticated = !!auth.token && !!auth.user;
   const isVerified = auth.user?.isVerified === true;
   const userRole = auth.user?.role || "viewer";
+
+  console.log("🔍 AuthContext - Current state:", {
+    isAuthenticated,
+    isVerified,
+    userRole,
+    token: !!auth.token,
+    user: auth.user
+  });
 
   return (
     <AuthContext.Provider 

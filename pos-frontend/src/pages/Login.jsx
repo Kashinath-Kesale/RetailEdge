@@ -3,10 +3,12 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosInstance from "../api/axiosInstance";
 import { FiMail, FiLock, FiShoppingBag } from "react-icons/fi";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -40,32 +42,35 @@ const Login = () => {
         return;
       }
 
-      console.log("Sending login request with data:", formData);
+      console.log("🔍 Login - Sending login request with data:", formData);
       const response = await axiosInstance.post("/api/auth/login", formData);
-      console.log("Login response:", response.data);
+      console.log("🔍 Login - Login response:", response.data);
 
       if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-
         const userData = {
           ...response.data.user,
           isVerified: Boolean(response.data.user.isVerified),
         };
-        localStorage.setItem("user", JSON.stringify(userData));
-        console.log("Stored user data:", userData);
+        
+        console.log("🔍 Login - User data prepared:", userData);
+        
+        // Use the login method from AuthContext to update authentication state
+        login(response.data.token, userData);
+        console.log("🔍 Login - AuthContext login method called");
 
         if (!userData.isVerified) {
-          console.log("User not verified, redirecting to verify-email");
+          console.log("🔍 Login - User not verified, redirecting to verify-email");
           toast.info("Please verify your email before proceeding");
           navigate("/verify-email");
           return;
         }
 
+        console.log("🔍 Login - User verified, redirecting to dashboard");
         toast.success("Login successful!");
         navigate("/dashboard");
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("🔍 Login - Login error:", error);
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.msg ||

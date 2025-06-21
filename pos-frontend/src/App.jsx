@@ -1,6 +1,5 @@
 // src/App.jsx
 import React from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
@@ -23,6 +22,8 @@ import ChangePassword from "./pages/ChangePassword";
 import './App.css';
 
 const App = () => {
+  console.log("🔍 App - Rendering App component");
+  
   return (
     <ErrorBoundary>
       <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -54,7 +55,7 @@ const App = () => {
                   </PrivateRoute>
                 }
               >
-                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="products" element={<Products />} />
                 <Route path="sales" element={<Sales />} />

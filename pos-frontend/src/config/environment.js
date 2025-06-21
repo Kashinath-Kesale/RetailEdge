@@ -10,7 +10,7 @@ const config = {
   
   // Feature flags
   ENABLE_LOGGING: process.env.NODE_ENV === 'development',
-  ENABLE_VERIFICATION: process.env.NODE_ENV !== 'development',
+  ENABLE_VERIFICATION: true, // Enable verification in all environments
   
   // App configuration
   APP_NAME: 'RetailEdge',
