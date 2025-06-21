@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import { toast } from 'react-toastify';
 import moment from 'moment';
@@ -12,6 +12,7 @@ const ActivityTracker = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
   const { userRole } = useAuth();
+  const hasFetchedRef = useRef(false);
 
   // Check if user has permission to view activities
   const hasPermission = userRole === 'admin';
@@ -65,11 +66,20 @@ const ActivityTracker = () => {
     } finally {
       setLoading(false);
     }
-  }, [loading, userRole, hasPermission]);
+  }, [loading]); // Only depend on loading state
 
-  useEffect(() => {
+  const handleRefresh = useCallback(() => {
+    hasFetchedRef.current = false;
     fetchActivities();
   }, [fetchActivities]);
+
+  useEffect(() => {
+    // Only fetch activities if user has permission and hasn't fetched yet
+    if (hasPermission && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
+      fetchActivities();
+    }
+  }, [fetchActivities, hasPermission]);
 
   const getActionColor = (action) => {
     switch (action) {
@@ -136,7 +146,7 @@ const ActivityTracker = () => {
           </div>
           {hasPermission && (
             <button
-              onClick={fetchActivities}
+              onClick={handleRefresh}
               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <FiRefreshCw size={16} />
