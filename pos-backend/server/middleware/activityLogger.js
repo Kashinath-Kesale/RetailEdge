@@ -61,25 +61,25 @@ const activityLoggers = {
   logProductCreate: logActivity('CREATE_PRODUCT', 'PRODUCT', 'Created new product', 'Product'),
   logProductUpdate: logActivity('UPDATE_PRODUCT', 'PRODUCT', 'Updated product', 'Product'),
   logProductDelete: logActivity('DELETE_PRODUCT', 'PRODUCT', 'Deleted product', 'Product'),
-  logProductsView: logActivity('VIEW_PRODUCTS', 'PRODUCT', 'Viewed products list'),
+  logProductsView: logActivity('VIEW_PRODUCTS', 'PRODUCT', 'Viewed products list', 'Product'),
   
   // Sale operations
   logSaleCreate: logActivity('CREATE_SALE', 'SALE', 'Created new sale', 'Sale'),
-  logSalesView: logActivity('VIEW_SALES', 'SALE', 'Viewed sales list'),
-  logReceiptView: logActivity('VIEW_RECEIPT', 'SALE', 'Viewed sale receipt'),
+  logSalesView: logActivity('VIEW_SALES', 'SALE', 'Viewed sales list', 'Sale'),
+  logReceiptView: logActivity('VIEW_RECEIPT', 'SALE', 'Viewed sale receipt', 'Sale'),
   
   // Payment operations
   logPaymentCreate: logActivity('CREATE_PAYMENT', 'PAYMENT', 'Created new payment', 'Payment'),
-  logPaymentsView: logActivity('VIEW_PAYMENTS', 'PAYMENT', 'Viewed payments list'),
+  logPaymentsView: logActivity('VIEW_PAYMENTS', 'PAYMENT', 'Viewed payments list', 'Payment'),
   logPaymentDelete: logActivity('DELETE_PAYMENT', 'PAYMENT', 'Deleted payment', 'Payment'),
   
   // User operations
   logUserCreate: logActivity('CREATE_USER', 'USER', 'Created new user', 'User'),
   logUserUpdate: logActivity('UPDATE_USER', 'USER', 'Updated user', 'User'),
   logUserDelete: logActivity('DELETE_USER', 'USER', 'Deleted user', 'User'),
-  logUserLogin: logActivity('LOGIN', 'USER', 'User logged in'),
-  logUserLogout: logActivity('LOGOUT', 'USER', 'User logged out'),
-  logPasswordChange: logActivity('PASSWORD_CHANGE', 'USER', 'Password changed'),
+  logUserLogin: logActivity('LOGIN', 'USER', 'User logged in', 'User'),
+  logUserLogout: logActivity('LOGOUT', 'USER', 'User logged out', 'User'),
+  logPasswordChange: logActivity('PASSWORD_CHANGE', 'USER', 'Password changed', 'User'),
   
   // Dashboard operations
   logDashboardView: logActivity('VIEW_DASHBOARD', 'DASHBOARD', 'Viewed dashboard'),

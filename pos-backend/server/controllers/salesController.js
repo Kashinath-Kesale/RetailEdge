@@ -181,7 +181,7 @@ exports.getAllSales = async (req, res) => {
     });
     
     // Log activity
-    await logActivity(req.user, 'VIEW_SALES', 'SALE', 'Viewed sales list');
+    await logActivity(req.user, 'VIEW_SALES', 'SALE', 'Viewed sales list', null, 'Sale');
     
     res.status(200).json(transformedSales);
   } catch (error) {

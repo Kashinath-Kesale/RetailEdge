@@ -45,11 +45,22 @@ const ActivityTracker = () => {
             action === 'CREATE_PRODUCT' ||
             action === 'UPDATE_PRODUCT' ||
             action === 'DELETE_PRODUCT' ||
+            action === 'VIEW_PRODUCTS' ||
             action === 'CREATE_SALE' ||
             action === 'DELETE_SALE' ||
+            action === 'VIEW_SALES' ||
+            action === 'VIEW_RECEIPT' ||
+            action === 'CREATE_PAYMENT' ||
+            action === 'VIEW_PAYMENTS' ||
+            action === 'DELETE_PAYMENT' ||
             action === 'CREATE_USER' ||
             action === 'UPDATE_USER' ||
+            action === 'DELETE_USER' ||
+            action === 'VIEW_DASHBOARD' ||
+            action === 'VIEW_REPORTS' ||
             // User Activities
+            action === 'LOGIN' ||
+            action === 'LOGOUT' ||
             action === 'PASSWORD_CHANGE'
           );
         });
@@ -87,6 +98,7 @@ const ActivityTracker = () => {
       case 'CREATE_PRODUCT':
       case 'CREATE_SALE':
       case 'CREATE_USER':
+      case 'CREATE_PAYMENT':
         return 'text-green-600 bg-green-100';
       case 'UPDATE_PRODUCT':
       case 'UPDATE_USER':
@@ -94,7 +106,18 @@ const ActivityTracker = () => {
         return 'text-blue-600 bg-blue-100';
       case 'DELETE_PRODUCT':
       case 'DELETE_SALE':
+      case 'DELETE_PAYMENT':
+      case 'DELETE_USER':
         return 'text-red-600 bg-red-100';
+      case 'VIEW_PRODUCTS':
+      case 'VIEW_SALES':
+      case 'VIEW_PAYMENTS':
+      case 'VIEW_RECEIPT':
+      case 'VIEW_DASHBOARD':
+      case 'VIEW_REPORTS':
+      case 'LOGIN':
+      case 'LOGOUT':
+        return 'text-purple-600 bg-purple-100';
       default:
         return 'text-gray-600 bg-gray-100';
     }
@@ -105,6 +128,7 @@ const ActivityTracker = () => {
       case 'CREATE_PRODUCT':
       case 'CREATE_SALE':
       case 'CREATE_USER':
+      case 'CREATE_PAYMENT':
         return '➕';
       case 'UPDATE_PRODUCT':
       case 'UPDATE_USER':
@@ -112,7 +136,20 @@ const ActivityTracker = () => {
         return '✏️';
       case 'DELETE_PRODUCT':
       case 'DELETE_SALE':
+      case 'DELETE_PAYMENT':
+      case 'DELETE_USER':
         return '🗑️';
+      case 'VIEW_PRODUCTS':
+      case 'VIEW_SALES':
+      case 'VIEW_PAYMENTS':
+      case 'VIEW_RECEIPT':
+      case 'VIEW_DASHBOARD':
+      case 'VIEW_REPORTS':
+        return '👁️';
+      case 'LOGIN':
+        return '🔑';
+      case 'LOGOUT':
+        return '🚪';
       default:
         return '📝';
     }
@@ -123,10 +160,21 @@ const ActivityTracker = () => {
       'CREATE_PRODUCT': 'Created Product',
       'UPDATE_PRODUCT': 'Updated Product',
       'DELETE_PRODUCT': 'Deleted Product',
+      'VIEW_PRODUCTS': 'Viewed Products',
       'CREATE_SALE': 'Created Sale',
       'DELETE_SALE': 'Deleted Sale',
+      'VIEW_SALES': 'Viewed Sales',
+      'VIEW_RECEIPT': 'Viewed Receipt',
+      'CREATE_PAYMENT': 'Created Payment',
+      'VIEW_PAYMENTS': 'Viewed Payments',
+      'DELETE_PAYMENT': 'Deleted Payment',
       'CREATE_USER': 'Created User',
       'UPDATE_USER': 'Updated Profile',
+      'DELETE_USER': 'Deleted User',
+      'VIEW_DASHBOARD': 'Viewed Dashboard',
+      'VIEW_REPORTS': 'Viewed Reports',
+      'LOGIN': 'Logged In',
+      'LOGOUT': 'Logged Out',
       'PASSWORD_CHANGE': 'Changed Password'
     };
     return actionMap[action] || action.replace(/_/g, ' ');

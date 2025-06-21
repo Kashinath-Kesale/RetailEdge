@@ -15,15 +15,26 @@ const activitySchema = new mongoose.Schema(
         "CREATE_PRODUCT",
         "UPDATE_PRODUCT", 
         "DELETE_PRODUCT",
+        "VIEW_PRODUCTS",
         "CREATE_SALE",
         "DELETE_SALE",
+        "VIEW_SALES",
+        "VIEW_RECEIPT",
+        "CREATE_PAYMENT",
+        "VIEW_PAYMENTS",
+        "DELETE_PAYMENT",
         "CREATE_USER",
         "UPDATE_USER",
+        "DELETE_USER",
         
         // User Activities
         "LOGIN",
         "LOGOUT",
-        "PASSWORD_CHANGE"
+        "PASSWORD_CHANGE",
+        
+        // Dashboard Activities
+        "VIEW_DASHBOARD",
+        "VIEW_REPORTS"
       ],
     },
     target: {
@@ -32,7 +43,9 @@ const activitySchema = new mongoose.Schema(
       enum: [
         "PRODUCT",
         "SALE", 
+        "PAYMENT",
         "USER",
+        "DASHBOARD",
         "SYSTEM"
       ],
     },
@@ -42,7 +55,8 @@ const activitySchema = new mongoose.Schema(
     },
     targetModel: {
       type: String,
-      enum: ["Product", "Sale", "User"],
+      enum: ["Product", "Sale", "Payment", "User"],
+      required: false,
     },
     details: {
       type: String,

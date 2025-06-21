@@ -51,7 +51,7 @@ exports.getAllProducts = async (req, res) => {
     const products = await Product.find().sort({ createdAt: -1 });
     
     // Log activity
-    await logActivity(req.user, 'VIEW_PRODUCTS', 'PRODUCT', 'Viewed products list');
+    await logActivity(req.user, 'VIEW_PRODUCTS', 'PRODUCT', 'Viewed products list', null, 'Product');
     
     // Transform products to include stock field for frontend compatibility
     const transformedProducts = products.map(product => ({
