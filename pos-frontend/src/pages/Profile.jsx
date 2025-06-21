@@ -111,7 +111,6 @@ const Profile = () => {
             <h3 className="text-sm font-medium text-gray-900 mb-3">Contact Information</h3>
             <div className="px-3 py-2 bg-gray-50 rounded-md border border-gray-200">
               <span className="text-sm text-gray-900">{user.email}</span>
-              <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
             </div>
           </div>
 
