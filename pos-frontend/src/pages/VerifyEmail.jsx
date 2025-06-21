@@ -12,6 +12,7 @@ const VerifyEmail = () => {
   const [resending, setResending] = useState(false);
   const [error, setError] = useState("");
   const [verified, setVerified] = useState(false);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     const verifyEmail = async () => {
@@ -62,9 +63,14 @@ const VerifyEmail = () => {
   }, [location.search, navigate]);
 
   const handleResendVerification = async () => {
+    if (!email.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
     try {
       setResending(true);
-      const response = await axiosInstance.post("/api/auth/resend-verification");
+      const response = await axiosInstance.post("/api/auth/resend-verification", { email: email.trim() });
       console.log("Resend verification response:", response.data);
       toast.success("Verification email sent! Please check your inbox.");
     } catch (error) {
@@ -107,11 +113,26 @@ const VerifyEmail = () => {
             <div className="text-center">
               <FiAlertCircle className="h-12 w-12 text-red-500 mx-auto" />
               <p className="mt-4 text-sm text-gray-600">{error}</p>
+              
+              {/* Email input for resend */}
+              <div className="mt-4">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Enter your email to resend verification
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              
               <button
                 onClick={handleResendVerification}
-                disabled={resending}
+                disabled={resending || !email.trim()}
                 className={`mt-4 w-full flex justify-center py-1.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out ${
-                  resending ? "opacity-50 cursor-not-allowed" : ""
+                  resending || !email.trim() ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
                 {resending ? (
