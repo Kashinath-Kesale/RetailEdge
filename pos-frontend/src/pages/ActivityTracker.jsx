@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import { toast } from 'react-toastify';
 import moment from 'moment';
@@ -6,18 +6,21 @@ import {
   FiActivity,
   FiRefreshCw
 } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
 
 const ActivityTracker = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { userRole } = useAuth();
 
   useEffect(() => {
     fetchActivities();
-  }, []);
+  }, [fetchActivities]);
 
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     setLoading(true);
     try {
+      console.log('Fetching activities with user role:', userRole);
       const response = await axiosInstance.get('/api/activity');
       
       if (response.data.success) {
@@ -28,6 +31,18 @@ const ActivityTracker = () => {
       toast.error('Failed to load activities');
     } finally {
       setLoading(false);
+    }
+  }, [userRole]);
+
+  const testActivitySystem = async () => {
+    try {
+      console.log('Testing activity system...');
+      const response = await axiosInstance.get('/api/activity/test');
+      console.log('Test response:', response.data);
+      toast.success('Activity system test successful');
+    } catch (error) {
+      console.error('Activity system test failed:', error);
+      toast.error('Activity system test failed');
     }
   };
 
@@ -43,14 +58,25 @@ const ActivityTracker = () => {
             <p className="text-xs xs:text-sm text-gray-600 mt-1">
               Monitor all system activities and user actions
             </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Current user role: <span className="font-medium">{userRole}</span>
+            </p>
           </div>
-          <button
-            onClick={fetchActivities}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <FiRefreshCw size={16} />
-            Refresh
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={testActivitySystem}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Test System
+            </button>
+            <button
+              onClick={fetchActivities}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <FiRefreshCw size={16} />
+              Refresh
+            </button>
+          </div>
         </div>
 
         {/* Activities Table */}

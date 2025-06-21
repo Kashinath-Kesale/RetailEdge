@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     verifyToken();
-  }, []);
+  }, [logout]);
 
   // Login method — saves token and user to both state and localStorage
   const login = useCallback((token, user) => {

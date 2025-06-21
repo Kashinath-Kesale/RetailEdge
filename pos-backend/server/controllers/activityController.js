@@ -1,6 +1,30 @@
 const Activity = require('../models/Activity');
 const User = require('../models/User');
 
+// Test endpoint to check activity system
+exports.testActivity = async (req, res) => {
+  try {
+    console.log('Test activity endpoint called');
+    console.log('User:', req.user);
+    console.log('User role:', req.user?.role);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Activity system is working',
+      user: {
+        id: req.user?._id,
+        name: req.user?.name,
+        email: req.user?.email,
+        role: req.user?.role
+      },
+      isAdmin: req.user?.role === 'admin'
+    });
+  } catch (error) {
+    console.error('Test activity error:', error);
+    res.status(500).json({ message: 'Test failed', error: error.message });
+  }
+};
+
 // Create activity log
 exports.createActivity = async (req, res) => {
   try {
@@ -33,6 +57,14 @@ exports.createActivity = async (req, res) => {
 // Get all activities (admin only)
 exports.getAllActivities = async (req, res) => {
   try {
+    console.log('Activity request received:', {
+      user: req.user,
+      userRole: req.user?.role,
+      method: req.method,
+      path: req.path,
+      headers: req.headers
+    });
+
     const { 
       page = 1, 
       limit = 50, 
@@ -61,6 +93,8 @@ exports.getAllActivities = async (req, res) => {
 
     const skip = (page - 1) * limit;
     
+    console.log('Fetching activities with filter:', filter);
+    
     const activities = await Activity.find(filter)
       .populate('user', 'name email role')
       .populate('targetId')
@@ -69,6 +103,8 @@ exports.getAllActivities = async (req, res) => {
       .limit(parseInt(limit));
 
     const total = await Activity.countDocuments(filter);
+
+    console.log(`Found ${activities.length} activities out of ${total} total`);
 
     res.status(200).json({
       success: true,

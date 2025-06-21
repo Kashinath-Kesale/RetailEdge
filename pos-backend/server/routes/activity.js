@@ -4,6 +4,9 @@ const activityController = require('../controllers/activityController');
 const { protect } = require('../middleware/auth');
 const restrictTo = require('../middleware/restrictTo');
 
+// Test endpoint (protected, any role)
+router.get('/test', protect, activityController.testActivity);
+
 // Create activity log (protected, any role)
 router.post('/', protect, activityController.createActivity);
 
