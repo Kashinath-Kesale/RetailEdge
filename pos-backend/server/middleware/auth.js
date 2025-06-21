@@ -21,6 +21,26 @@ const protect = async (req, res, next) => {
     // Add both user object and userId to request
     req.user = user; // full user object with role
     req.user.userId = user._id; // add userId for routes that need it
+    
+    // Add session information if available
+    if (decoded.sessionId) {
+      req.user.sessionId = decoded.sessionId;
+      req.user.loginTimestamp = decoded.loginTimestamp;
+    }
+
+    // Log access for debugging (only in development)
+    if (process.env.NODE_ENV === 'development') {
+      console.log("🔐 Auth middleware - Access granted:", {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+        sessionId: decoded.sessionId,
+        path: req.path,
+        method: req.method,
+        ip: req.ip
+      });
+    }
+
     next();
   } catch (error) {
     console.error("JWT verification error:", error.message);

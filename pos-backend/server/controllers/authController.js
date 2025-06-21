@@ -256,7 +256,7 @@ exports.verifyEmail = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("Login request received:", { email });
+    console.log("Login request received:", { email, ip: req.ip, userAgent: req.get('User-Agent') });
 
     // Find user
     const user = await User.findOne({ email: email.trim().toLowerCase() });
@@ -270,9 +270,17 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // Generate token
+    // Generate unique session identifier
+    const sessionId = crypto.randomBytes(16).toString('hex');
+    const loginTimestamp = Date.now();
+
+    // Generate token with session information
     const token = jwt.sign(
-      { userId: user._id },
+      { 
+        userId: user._id,
+        sessionId: sessionId,
+        loginTimestamp: loginTimestamp
+      },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -283,21 +291,30 @@ exports.login = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      isVerified: Boolean(user.isVerified) // Ensure boolean value
+      isVerified: Boolean(user.isVerified), // Ensure boolean value
+      sessionId: sessionId
     };
 
     console.log("Login successful:", {
       userId: user._id,
       email: user.email,
-      isVerified: userData.isVerified
+      isVerified: userData.isVerified,
+      sessionId: sessionId,
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
     });
 
-    await logActivity(user, 'LOGIN', 'USER', `User logged in: ${user.email}`);
+    await logActivity(user, 'LOGIN', 'USER', `User logged in: ${user.email} (Session: ${sessionId})`);
 
     res.status(200).json({
       message: "Login successful",
       token,
-      user: userData
+      user: userData,
+      sessionInfo: {
+        sessionId: sessionId,
+        loginTimestamp: loginTimestamp,
+        expiresIn: '24h'
+      }
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -560,16 +577,33 @@ exports.resendVerification = async (req, res) => {
 exports.logout = async (req, res) => {
   try {
     const userId = req.user.userId;
+    const sessionId = req.user.sessionId; // Get session ID from token
     const user = await User.findById(userId);
     
     if (user) {
-      // Log activity
-      await logActivity(user, 'LOGOUT', 'USER', `User logged out: ${user.email}`);
+      // Log activity with session information
+      const logoutDetails = sessionId 
+        ? `User logged out: ${user.email} (Session: ${sessionId})`
+        : `User logged out: ${user.email}`;
+      
+      await logActivity(user, 'LOGOUT', 'USER', logoutDetails);
+      
+      console.log("Logout successful:", {
+        userId: user._id,
+        email: user.email,
+        sessionId: sessionId,
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: "Logged out successfully"
+      message: "Logged out successfully",
+      sessionInfo: {
+        sessionId: sessionId,
+        logoutTimestamp: Date.now()
+      }
     });
   } catch (error) {
     console.error("Logout error:", error);

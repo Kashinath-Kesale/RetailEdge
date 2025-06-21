@@ -44,9 +44,31 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       setAuth({ token: "", user: null });
-      delete axiosInstance.defaults.headers.common["Authorization"];
       toast.success("Logged out successfully");
     }
+  }, []);
+
+  // Handle storage events for multi-tab synchronization
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "token" || e.key === "user") {
+        console.log("🔍 AuthContext - Storage changed:", e.key);
+        const newToken = localStorage.getItem("token") || "";
+        const newUser = getUserFromStorage();
+        setAuth({ token: newToken, user: newUser });
+      }
+    };
+
+    // Listen for storage events (other tabs/windows)
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Listen for custom events (same tab)
+    window.addEventListener("authStateChanged", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("authStateChanged", handleStorageChange);
+    };
   }, []);
 
   // Verify token and update user data on mount
@@ -55,9 +77,6 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          // Set default headers for all requests
-          axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-          
           // Get user data from localStorage
           const user = getUserFromStorage();
           if (user) {
@@ -73,7 +92,6 @@ export const AuthProvider = ({ children }) => {
                 localStorage.removeItem("token");
                 localStorage.removeItem("user");
                 setAuth({ token: "", user: null });
-                delete axiosInstance.defaults.headers.common["Authorization"];
                 return;
               }
             }
@@ -97,8 +115,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("user", JSON.stringify(user));
     setAuth({ token, user });
     
-    // Set default headers for all requests
-    axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    // Dispatch custom event for same-tab synchronization
+    window.dispatchEvent(new Event("authStateChanged"));
+    
     console.log("🔍 AuthContext - Auth state updated:", { token: !!token, user });
   }, []);
 
@@ -108,6 +127,10 @@ export const AuthProvider = ({ children }) => {
     const updatedUser = { ...auth.user, ...userData };
     localStorage.setItem("user", JSON.stringify(updatedUser));
     setAuth(prev => ({ ...prev, user: updatedUser }));
+    
+    // Dispatch custom event for same-tab synchronization
+    window.dispatchEvent(new Event("authStateChanged"));
+    
     console.log("🔍 AuthContext - User data updated:", updatedUser);
   }, [auth.user]);
 

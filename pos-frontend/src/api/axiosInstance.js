@@ -18,10 +18,10 @@ const axiosInstance = axios.create({
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (requestConfig) => {
-    // Get token from localStorage
+    // Get token from localStorage for each request
     const token = localStorage.getItem("token");
 
-    // Add token to headers if it exists
+    // Add token to headers if it exists (per request, not global)
     if (token) {
       requestConfig.headers.Authorization = `Bearer ${token}`;
     }
