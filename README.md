@@ -8,11 +8,14 @@ RetailEdge is a modern retail management platform that revolutionizes how busine
 
 ---
 
-![Screenshot 2025-06-18 194035](https://github.com/user-attachments/assets/dee261f7-3e4f-43ae-ae27-e0a6a423f302)
-![Screenshot 2025-06-18 194306](https://github.com/user-attachments/assets/b97c172b-a750-4e1d-a44c-a7140b7c2b68)
-![Screenshot 2025-06-18 194415](https://github.com/user-attachments/assets/f5c6bb45-258e-4cf6-940c-69ca8c69a631)
-![Screenshot 2025-06-18 194431](https://github.com/user-attachments/assets/dbf6d97e-2994-4812-be14-b8a20bbe66cf)
-![Screenshot 2025-06-18 194444](https://github.com/user-attachments/assets/640475a9-5225-405d-809e-b1a7f3604f15)
+![Screenshot 2025-07-01 164914](https://github.com/user-attachments/assets/4e564371-40b8-4df7-9cd0-facb665ccb21)
+![Screenshot 2025-07-01 163943](https://github.com/user-attachments/assets/b8bcea31-968c-47e7-a2c1-b331e851bcbc)
+![Screenshot 2025-07-01 164127](https://github.com/user-attachments/assets/0805ed40-5248-481b-8805-b9bff359831f)
+![Screenshot 2025-07-01 164304](https://github.com/user-attachments/assets/cde77ce6-2142-486c-a096-81ada4f117f4)
+![Screenshot 2025-07-01 165043](https://github.com/user-attachments/assets/4d7b1831-3eee-40eb-ac7c-143512c8a012)
+![Screenshot 2025-07-01 164321](https://github.com/user-attachments/assets/d61dfa76-e5a1-4017-b4c0-ef383323bd25)
+![Screenshot 2025-07-01 164749](https://github.com/user-attachments/assets/2660b782-4b1c-4501-897c-f43ddb5c014b)
+
 ![Screenshot 2025-06-18 194504](https://github.com/user-attachments/assets/bb12f386-064e-45b6-8049-6a4c1f73cfc1)
 
 
