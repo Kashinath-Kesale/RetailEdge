@@ -180,9 +180,6 @@ exports.getAllSales = async (req, res) => {
       return saleObj;
     });
     
-    // Log activity
-    await logActivity(req.user, 'VIEW_SALES', 'SALE', 'Viewed sales list', null, 'Sale');
-    
     res.status(200).json(transformedSales);
   } catch (error) {
     console.error('Get sales error:', error);

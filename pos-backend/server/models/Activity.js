@@ -15,13 +15,9 @@ const activitySchema = new mongoose.Schema(
         "CREATE_PRODUCT",
         "UPDATE_PRODUCT", 
         "DELETE_PRODUCT",
-        "VIEW_PRODUCTS",
         "CREATE_SALE",
         "DELETE_SALE",
-        "VIEW_SALES",
-        "VIEW_RECEIPT",
         "CREATE_PAYMENT",
-        "VIEW_PAYMENTS",
         "DELETE_PAYMENT",
         "CREATE_USER",
         "UPDATE_USER",
@@ -33,8 +29,6 @@ const activitySchema = new mongoose.Schema(
         "PASSWORD_CHANGE",
         
         // Dashboard Activities
-        "VIEW_DASHBOARD",
-        "VIEW_REPORTS"
       ],
     },
     target: {

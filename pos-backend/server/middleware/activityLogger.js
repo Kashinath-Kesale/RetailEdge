@@ -61,16 +61,16 @@ const activityLoggers = {
   logProductCreate: logActivity('CREATE_PRODUCT', 'PRODUCT', 'Created new product', 'Product'),
   logProductUpdate: logActivity('UPDATE_PRODUCT', 'PRODUCT', 'Updated product', 'Product'),
   logProductDelete: logActivity('DELETE_PRODUCT', 'PRODUCT', 'Deleted product', 'Product'),
-  logProductsView: logActivity('VIEW_PRODUCTS', 'PRODUCT', 'Viewed products list', 'Product'),
+  // logProductsView: logActivity('VIEW_PRODUCTS', 'PRODUCT', 'Viewed products list', 'Product'),
   
   // Sale operations
   logSaleCreate: logActivity('CREATE_SALE', 'SALE', 'Created new sale', 'Sale'),
-  logSalesView: logActivity('VIEW_SALES', 'SALE', 'Viewed sales list', 'Sale'),
-  logReceiptView: logActivity('VIEW_RECEIPT', 'SALE', 'Viewed sale receipt', 'Sale'),
+  // logSalesView: logActivity('VIEW_SALES', 'SALE', 'Viewed sales list', 'Sale'),
+  // logReceiptView: logActivity('VIEW_RECEIPT', 'SALE', 'Viewed sale receipt', 'Sale'),
   
   // Payment operations
   logPaymentCreate: logActivity('CREATE_PAYMENT', 'PAYMENT', 'Created new payment', 'Payment'),
-  logPaymentsView: logActivity('VIEW_PAYMENTS', 'PAYMENT', 'Viewed payments list', 'Payment'),
+  // logPaymentsView: logActivity('VIEW_PAYMENTS', 'PAYMENT', 'Viewed payments list', 'Payment'),
   logPaymentDelete: logActivity('DELETE_PAYMENT', 'PAYMENT', 'Deleted payment', 'Payment'),
   
   // User operations
@@ -82,8 +82,8 @@ const activityLoggers = {
   logPasswordChange: logActivity('PASSWORD_CHANGE', 'USER', 'Password changed', 'User'),
   
   // Dashboard operations
-  logDashboardView: logActivity('VIEW_DASHBOARD', 'DASHBOARD', 'Viewed dashboard'),
-  logReportsView: logActivity('VIEW_REPORTS', 'DASHBOARD', 'Viewed reports'),
+  // logDashboardView: logActivity('VIEW_DASHBOARD', 'DASHBOARD', 'Viewed dashboard'),
+  // logReportsView: logActivity('VIEW_REPORTS', 'DASHBOARD', 'Viewed reports'),
   
   // Custom activity logger
   logCustom: (action, target, details, targetModel) => logActivity(action, target, details, targetModel)
