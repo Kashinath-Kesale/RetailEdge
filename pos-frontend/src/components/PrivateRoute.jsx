@@ -19,14 +19,19 @@ const PrivateRoute = ({ children }) => {
         console.log("🔍 PrivateRoute - isVerified:", isVerified);
         
         if (!token) {
-          console.log("🔍 PrivateRoute - No token found, redirecting to login");
           setLoading(false);
           return;
         }
 
         // Get user data from localStorage
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const user = JSON.parse(localStorage.getItem("user") || "null");
         console.log("🔍 PrivateRoute - User data:", user);
+
+        // Wait for user to be loaded
+        if (!user) {
+          // Still loading user, don't make a decision yet
+          return;
+        }
 
         // Skip verification in development mode
         if (!config.ENABLE_VERIFICATION) {
@@ -49,9 +54,6 @@ const PrivateRoute = ({ children }) => {
             return;
           } else {
             console.log("🔍 PrivateRoute - No verification token found, redirecting to login");
-            // Clear invalid authentication state
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
             setLoading(false);
             return;
           }
@@ -61,8 +63,6 @@ const PrivateRoute = ({ children }) => {
         setLoading(false);
       } catch (error) {
         console.error("Auth check error:", error);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
         setLoading(false);
         toast.error("Session expired. Please login again.");
       }
