@@ -52,18 +52,21 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function(origin, callback) {
+    console.log('CORS check:', { origin, allowedOrigins });
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) {
       return callback(null, true);
     }
-    
+    // If allowedOrigins contains undefined, allow all origins (for fallback/debug)
+    if (allowedOrigins.includes(undefined)) {
+      console.warn('FRONTEND_URL is not set. Allowing all origins for debug.');
+      return callback(null, true);
+    }
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
     console.log('CORS blocked origin:', origin);
     console.log('Allowed origins:', allowedOrigins);
-    
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
