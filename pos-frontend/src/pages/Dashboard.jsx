@@ -234,7 +234,7 @@ export default function Dashboard() {
                 </span>
               </div>
               <div className="mt-2 text-sm text-gray-500">
-                {dashboardData.revenueGrowth > 0 ? (
+                {(dashboardData.revenueData.currentMonth > 0 || dashboardData.revenueData.previousMonth > 0) ? (
                   <>
                     Current: ₹{dashboardData.revenueData.currentMonth.toLocaleString()}
                     <br />
