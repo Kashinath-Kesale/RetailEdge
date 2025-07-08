@@ -105,6 +105,7 @@ const App = () => {
                 <Route path="receipts" element={<Receipts />} />
                 <Route path="activity" element={<ActivityTracker />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="change-password" element={<ChangePassword />} />
                 <Route path="about" element={<About />} />
               </Route>
 
