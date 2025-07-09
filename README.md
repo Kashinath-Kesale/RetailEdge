@@ -50,6 +50,12 @@ RetailEdge is a modern retail management platform that revolutionizes how busine
 - Email verification
 - Role-based access control (Admin, Cashier, Viewer)
 
+### 📌 Activity Monitoring & Collaboration
+- Real-time activity tracking for all users
+- Audit trails for CRUD operations across modules
+- Transparent logging of sales, payments, product changes, and user actions
+- Multi-user collaboration with accountability
+
 ### 💰 Sales Management
 - Real-time sales processing
 - Multiple payment methods
@@ -73,6 +79,17 @@ RetailEdge is a modern retail management platform that revolutionizes how busine
 - Role-based permissions
 - User verification system
 - Profile management
+
+---
+
+### 🧰 Tools & Platforms Used
+
+- 🧪 **Postman** – API testing and debugging  
+- 🌀 **Git & GitHub** – Version control and collaborative code hosting  
+- 🍃 **MongoDB Compass** – Visual database explorer for MongoDB  
+- 🖊️ **Visual Studio Code (VS Code)** – Source code editor  
+- ▲ **Vercel** – Frontend deployment  
+- 🔷 **Render** – Backend deployment and hosting  
 
 ---
 ## 📜 License
