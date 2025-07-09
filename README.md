@@ -24,22 +24,31 @@ RetailEdge is a modern retail management platform that revolutionizes how busine
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- ⚛️ React.js (v18.2.0)
-- 🎨 Tailwind CSS
-- 🔀 React Router
-- 🔗 Axios
-- 📊 Chart.js
-- 🔔 React Toastify
-- 📆 Moment.js
-- 🎨 React Icons
+### 🎯 Frontend
 
-### Backend
-- 🟢 Node.js
-- 🚂 Express.js
-- 🍃 MongoDB (Mongoose)
-- ✉️ Nodemailer
-- 🔐 JWT (JSON Web Tokens)
+- ⚛️ **React.js** (v18.2.0) – Modern component-based UI library
+- 🎨 **Tailwind CSS** – Utility-first CSS framework for styling
+- 🔀 **React Router** – Client-side routing and navigation
+- 🔗 **Axios** – Promise-based HTTP client for API communication
+- 📊 **Chart.js** – Visual data representation and analytics charts
+- 🔔 **React Toastify** – Beautiful and customizable toast notifications
+- 📆 **Moment.js** – Date and time formatting
+- 🎨 **React Icons** – Scalable vector icons for React UI
+
+
+### 🛠️ Backend
+
+- 🟢 **Node.js** – Runtime environment for executing JavaScript on the server  
+- 🚂 **Express.js** – Fast, unopinionated web framework for Node.js  
+- 🍃 **MongoDB** (with **Mongoose**) – NoSQL database with schema-based modeling  
+- ✉️ **Nodemailer** – Email sending service for verification and notifications  
+- 🔐 **JWT (JSON Web Tokens)** – Secure authentication mechanism  
+- 🧰 **bcrypt.js** – Password hashing and security  
+- 🧪 **Joi / Express-Validator** – Data validation for incoming requests  
+- 📄 **PDFKit** – Receipt and invoice PDF generation  
+- 🕵️ **Custom Middleware** – Role-based access, error handling, and logging  
+- 📂 **Multer** – File upload handling (if used for product images or receipts)  
+
 
 ---
 
