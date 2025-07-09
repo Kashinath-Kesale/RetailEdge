@@ -44,10 +44,8 @@ RetailEdge is a modern retail management platform that revolutionizes how busine
 - ✉️ **Nodemailer** – Email sending service for verification and notifications  
 - 🔐 **JWT (JSON Web Tokens)** – Secure authentication mechanism  
 - 🧰 **bcrypt.js** – Password hashing and security  
-- 🧪 **Joi / Express-Validator** – Data validation for incoming requests  
 - 📄 **PDFKit** – Receipt and invoice PDF generation  
 - 🕵️ **Custom Middleware** – Role-based access, error handling, and logging  
-- 📂 **Multer** – File upload handling (if used for product images or receipts)  
 
 
 ---
