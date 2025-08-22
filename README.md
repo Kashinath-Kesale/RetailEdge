@@ -16,7 +16,7 @@ RetailEdge is a modern retail management platform that revolutionizes how busine
 ![Screenshot 2025-07-01 164321](https://github.com/user-attachments/assets/d61dfa76-e5a1-4017-b4c0-ef383323bd25)
 ![Screenshot 2025-07-01 164749](https://github.com/user-attachments/assets/2660b782-4b1c-4501-897c-f43ddb5c014b)
 
-![Screenshot 2025-06-18 194504](https://github.com/user-attachments/assets/bb12f386-064e-45b6-8049-6a4c1f73cfc1)
+<img width="1919" height="1079" alt="Screenshot 2025-07-01 175458" src="https://github.com/user-attachments/assets/c6b59953-b451-4525-8b83-19c96b76bd5e" />
 
 
 
